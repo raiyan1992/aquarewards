@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaniRewards – Scan • Spin • Save</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bl:#0277BD;--bl2:#0288D1;--gr:#00897B;--gr2:#43A047;--yl:#F9A825;--or:#E65100;--rd:#C62828;--bg:#F0F4FF;--wh:#fff;--dk:#0D1B2A;--gy:#6B7280;--sh:0 4px 20px rgba(2,119,189,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--dk);overflow-x:hidden}
+nav{background:var(--wh);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;box-shadow:0 2px 12px rgba(0,0,0,0.07);position:sticky;top:0;z-index:200}
+.logo{display:flex;align-items:center;gap:8px}
+.lt{font-family:'Baloo 2',cursive;font-size:20px;font-weight:900}
+.lt .a{color:var(--bl)}.lt .b{color:var(--gr)}
+.ls{font-size:10px;color:var(--gy);letter-spacing:1px}
+.nav-btns{display:flex;gap:6px}
+.nbtn{background:var(--bg);border:none;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;color:var(--bl);font-family:'Hind Siliguri',sans-serif}
+.page{display:none;min-height:calc(100vh - 56px);padding-bottom:80px}
+.page.active{display:block}
+.bnav{background:var(--wh);border-top:1px solid #E5E7EB;display:flex;justify-content:space-around;align-items:center;padding:8px 0 6px;position:fixed;bottom:0;left:0;right:0;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.08)}
+.bni{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--gy);cursor:pointer;padding:4px 10px;border-radius:10px}
+.bni.active{color:var(--bl)}.bni .ic{font-size:22px}
+.bni-scan{background:var(--bl);color:var(--wh);width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-top:-18px;box-shadow:0 4px 16px rgba(2,119,189,.4);cursor:pointer;border:3px solid var(--wh)}
+.sec{padding:18px 16px}
+.sec-hd{font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:12px}
+.btn-p{background:var(--bl);color:var(--wh);padding:11px 20px;border-radius:12px;font-size:14px;font-weight:700;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:'Hind Siliguri',sans-serif}
+.btn-o{background:var(--wh);color:var(--bl);padding:11px 20px;border-radius:12px;font-size:14px;font-weight:700;border:2px solid var(--bl);cursor:pointer;font-family:'Hind Siliguri',sans-serif}
+.btn-s{background:var(--bl);color:var(--wh);width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:'Hind Siliguri',sans-serif;margin-top:8px}
+.inp{width:100%;padding:11px 14px;border:2px solid #E5E7EB;border-radius:10px;font-size:14px;outline:none;font-family:'Hind Siliguri',sans-serif;background:var(--wh);margin-top:5px;display:block}
+.inp:focus{border-color:var(--bl)}
+.lbl{font-size:12px;font-weight:600;color:var(--gy);display:block;margin-top:12px}
+.card{background:var(--wh);border-radius:14px;padding:16px;box-shadow:var(--sh)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--wh);border-radius:20px;padding:24px;width:100%;max-width:360px;text-align:center}
+.modal-box h2{font-family:'Baloo 2',cursive;font-size:20px;margin-bottom:8px}
+.mb{padding:11px 20px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;margin:5px;font-family:'Hind Siliguri',sans-serif}
+.mb.bl{background:var(--bl);color:var(--wh)}
+.mb.gr{background:var(--gr);color:var(--wh)}
+.mb.gy{background:#E5E7EB;color:var(--dk)}
+.mb.rd{background:var(--rd);color:var(--wh)}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:600;color:var(--bl);cursor:pointer;background:none;border:none;margin-bottom:14px;font-family:'Hind Siliguri',sans-serif}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.tag.bl{background:#DBEAFE;color:var(--bl)}
+.tag.gr{background:#DCFCE7;color:var(--gr)}
+.tag.or{background:#FEF3C7;color:#92400E}
+.tag.rd{background:#FEE2E2;color:var(--rd)}
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cat-c{background:var(--wh);border-radius:14px;padding:14px 8px;text-align:center;box-shadow:var(--sh);cursor:pointer;border:2px solid transparent;transition:.2s}
+.cat-c:hover,.cat-c:active{border-color:var(--bl)}
+.cat-c .ci{font-size:28px;margin-bottom:6px}
+.cat-c .cn{font-size:12px;font-weight:700}
+.cat-c .cb{font-size:10px;color:var(--bl);font-weight:600;margin-top:3px}
+.shop-c{background:var(--wh);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);cursor:pointer;margin-bottom:10px;border:2px solid transparent;transition:.2s}
+.shop-c:active{border-color:var(--bl)}
+.shop-ic{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.wheel-wrap{position:relative;width:280px;height:280px;margin:16px auto}
+.wptr{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:28px;z-index:10}
+.btn-spin{background:linear-gradient(135deg,var(--bl),var(--bl2));color:var(--wh);padding:14px 40px;border-radius:50px;font-size:17px;font-weight:800;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(2,119,189,0.4);font-family:'Hind Siliguri',cursive;display:block;margin:0 auto}
+.btn-spin:disabled{opacity:.5;cursor:not-allowed}
+.coupon-box{background:linear-gradient(135deg,var(--bl),var(--bl2));color:var(--wh);border-radius:18px;padding:20px;margin:14px 0;text-align:center}
+.coupon-code{font-family:monospace;font-size:28px;font-weight:800;letter-spacing:4px;margin:8px 0}
+.my-c{background:var(--wh);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);border-left:5px solid var(--bl)}
+.prof-av{width:70px;height:70px;background:var(--bl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 10px;color:var(--wh)}
+.stat-row{display:flex;gap:10px;margin-top:12px}
+.stat-b{flex:1;background:var(--bg);border-radius:10px;padding:12px;text-align:center}
+.stat-n{font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--bl)}
+.stat-l{font-size:10px;color:var(--gy)}
+.pkg-c{background:var(--wh);border:2px solid #E5E7EB;border-radius:14px;padding:14px;cursor:pointer;margin-bottom:10px;transition:.2s}
+.pkg-c.sel{border-color:var(--bl);background:#EFF6FF}
+.tx-c{background:var(--wh);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <span style="font-size:22px">🌊</span>
+    <div>
+      <div class="lt"><span class="a">Pani</span><span class="b">Rewards</span></div>
+      <div class="ls">Scan • Spin • Save</div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nbtn" onclick="showPage('merchant')" style="background:#EFF6FF">🏪 দোকান</button>
+    <button class="nbtn" onclick="showPage('adbooking')" style="background:#FFF3E0;color:#E65100">📢 Ad</button>
+    <button class="nbtn" onclick="adminLogin()">⚙️ Admin</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div style="background:linear-gradient(135deg,#E8F0FE,#DBEAFE);padding:26px 16px 20px">
+    <h1 style="font-family:'Baloo 2',cursive;font-size:36px;font-weight:900;line-height:1.1;margin-bottom:10px">Scan. Spin.<br><span style="color:var(--bl)">Win.</span> <span style="color:var(--gr)">Save.</span></h1>
+    <p style="font-size:14px;color:#444;margin-bottom:18px;line-height:1.6">বোতলের QR কোড স্ক্যান করুন এবং আপনার শহরের সেরা অফার জিতুন!</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-p" onclick="showPage('categories')">🎯 অফার দেখুন</button>
+      <button class="btn-o" onclick="showPage('how')">▶ কীভাবে কাজ করে</button>
+    </div>
+  </div>
+
+  <!-- AD BANNER -->
+  <div class="sec" style="padding-bottom:4px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:12px;color:var(--gy);font-weight:600">⭐ স্পনসর্ড</span>
+      <span style="font-size:10px;color:var(--gy)">বিজ্ঞাপন</span>
+    </div>
+    <div style="background:linear-gradient(135deg,#1565C0,#1E88E5);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(21,101,192,0.25)">
+      <div style="padding:16px;color:#fff">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px">🏫</div>
+          <div>
+            <div style="font-family:'Baloo 2',cursive;font-weight:800;font-size:15px">ফাইয়াজ স্কুল এন্ড কলেজ, রংপুর</div>
+            <div style="font-size:10px;opacity:.8">✅ শিক্ষাবোর্ড স্বীকৃত • EIIN: 139058</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px;margin-bottom:12px">
+          <div style="font-size:18px;font-weight:800;font-family:'Baloo 2',cursive;margin-bottom:4px">🎒 ভর্তি চলছে!</div>
+          <div style="font-size:12px;opacity:.95;line-height:1.5">প্লে গ্রুপ থেকে নবম শ্রেণী পর্যন্ত<br>আবাসিক • ডে-কেয়ার • নাইট কেয়ার • নিজস্ব পরিবহন</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;opacity:.8">ফর্ম বিতরণ</div>
+            <div style="font-size:11px;font-weight:700">২৫ নভেম্বর ২০২৫</div>
+          </div>
+          <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;opacity:.8">শেষ তারিখ</div>
+            <div style="font-size:11px;font-weight:700">৩০ ডিসেম্বর ২০২৫</div>
+          </div>
+          <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;opacity:.8">ক্লাশ শুরু</div>
+            <div style="font-size:11px;font-weight:700">১ জানুয়ারি ২০২৬</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(0,0,0,0.2);padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:11px;color:rgba(255,255,255,0.8)">বিদ্যালয় কোড: ৫৩২৯</div>
+        <button onclick="window.open('https://wa.me/8801747090375?text=ফাইয়াজ স্কুলে ভর্তির তথ্য জানতে চাই','_blank')" style="background:#fff;color:#1565C0;border:none;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer">📞 যোগাযোগ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">ক্যাটাগরি অনুযায়ী অফার</div>
+    <div class="cat-grid">
+      <div class="cat-c" onclick="showCategory('food')"><div class="ci">🍔</div><div class="cn">খাবার</div><div class="cb">৫+ দোকান</div></div>
+      <div class="cat-c" onclick="showCategory('health')"><div class="ci">💊</div><div class="cn">স্বাস্থ্য</div><div class="cb">৪+ প্রতিষ্ঠান</div></div>
+      <div class="cat-c" onclick="showCategory('education')"><div class="ci">🎓</div><div class="cn">শিক্ষা</div><div class="cb">৩+ কোচিং</div></div>
+      <div class="cat-c" onclick="showCategory('religious')"><div class="ci">🕌</div><div class="cn">ধর্মীয়</div><div class="cb">২+ প্রতিষ্ঠান</div></div>
+      <div class="cat-c" onclick="showCategory('lifestyle')"><div class="ci">🛋️</div><div class="cn">লাইফস্টাইল</div><div class="cb">৩+ দোকান</div></div>
+      <div class="cat-c" onclick="showCategory('auto')"><div class="ci">🏍️</div><div class="cn">অটো</div><div class="cb">২+ সার্ভিস</div></div>
+    </div>
+  </div>
+
+  <!-- MID AD -->
+  <div style="margin:0 16px 16px">
+    <div style="background:linear-gradient(135deg,#0D47A1,#1565C0);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;color:#fff">
+      <div style="font-size:28px">🏫</div>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:13px;font-family:'Baloo 2',cursive">ফাইয়াজ স্কুল এন্ড কলেজ</div>
+        <div style="font-size:11px;opacity:.9;margin-top:2px">ভর্তি চলছে! প্লে গ্রুপ — নবম শ্রেণী</div>
+      </div>
+      <button onclick="window.open('https://wa.me/8801747090375?text=ভর্তির তথ্য জানতে চাই','_blank')" style="background:#fff;color:#1565C0;border:none;padding:8px 12px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">ভর্তি হোন</button>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(135deg,var(--bl),var(--bl2));color:#fff;margin:0 16px 20px;border-radius:18px;padding:22px;text-align:center">
+    <h2 style="font-family:'Baloo 2',cursive;font-size:20px;margin-bottom:6px">💧 বেশি স্ক্যান, বেশি সঞ্চয়!</h2>
+    <p style="font-size:12px;opacity:.85;margin-bottom:14px">প্রতিদিন স্ক্যান করুন এবং বিশ্বস্ত পার্টনারদের কাছ থেকে ছাড় পান।</p>
+    <button class="btn-p" style="background:#fff;color:var(--bl)" onclick="showPage('categories')">🎯 এখনই দেখুন</button>
+  </div>
+
+  <div style="background:#FFF3E0;margin:0 16px 20px;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:32px">📢</div>
+    <div style="flex:1">
+      <div style="font-weight:800;font-size:14px;color:#E65100">আপনার বিজ্ঞাপন দিন!</div>
+      <div style="font-size:12px;color:var(--gy);margin:3px 0">Pani বোতলে আপনার ad দিয়ে হাজারো মানুষের কাছে পৌঁছান</div>
+      <button class="btn-p" style="background:#E65100;margin-top:8px;padding:8px 14px;font-size:12px" onclick="showPage('adbooking')">বিজ্ঞাপন বুক করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div id="page-categories" class="page">
+  <div class="sec">
+    <button class="back" onclick="showPage('home')">← পেছনে</button>
+    <div class="sec-hd">সব ক্যাটাগরি</div>
+    <div class="cat-grid">
+      <div class="cat-c" onclick="showCategory('food')"><div class="ci">🍔</div><div class="cn">খাবার</div><div class="cb">৫+ দোকান</div></div>
+      <div class="cat-c" onclick="showCategory('health')"><div class="ci">💊</div><div class="cn">স্বাস্থ্য</div><div class="cb">৪+ প্রতিষ্ঠান</div></div>
+      <div class="cat-c" onclick="showCategory('education')"><div class="ci">🎓</div><div class="cn">শিক্ষা</div><div class="cb">৩+ কোচিং</div></div>
+      <div class="cat-c" onclick="showCategory('religious')"><div class="ci">🕌</div><div class="cn">ধর্মীয়</div><div class="cb">২+ প্রতিষ্ঠান</div></div>
+      <div class="cat-c" onclick="showCategory('lifestyle')"><div class="ci">🛋️</div><div class="cn">লাইফস্টাইল</div><div class="cb">৩+ দোকান</div></div>
+      <div class="cat-c" onclick="showCategory('auto')"><div class="ci">🏍️</div><div class="cn">অটো</div><div class="cb">২+ সার্ভিস</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOPS -->
+<div id="page-shops" class="page">
+  <div class="sec">
+    <button class="back" onclick="showPage('categories')">← পেছনে</button>
+    <div class="sec-hd" id="shops-title">দোকান সমূহ</div>
+    <div id="shops-list"></div>
+  </div>
+</div>
+
+<!-- SPIN -->
+<div id="page-spin" class="page">
+  <div style="padding:18px 16px;text-align:center">
+    <button class="back" onclick="showPage('shops')">← পেছনে</button>
+    <div id="spin-shop-info" style="background:var(--wh);border-radius:14px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);text-align:left"></div>
+    <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;margin-bottom:4px">🎡 চাকা ঘোরান!</div>
+    <p style="color:var(--gy);font-size:13px;margin-bottom:12px">চাকা ঘুরিয়ে আপনার পুরস্কার জিতুন</p>
+    <div class="wheel-wrap">
+      <div class="wptr">▼</div>
+      <canvas id="wcanvas" width="280" height="280" style="border-radius:50%;box-shadow:0 8px 30px rgba(2,119,189,0.3)"></canvas>
+    </div>
+    <button class="btn-spin" id="spin-btn" onclick="doSpin()">🎰 ঘোরান!</button>
+    <div id="spin-result" style="display:none;margin-top:16px">
+      <div style="font-size:36px;margin-bottom:6px">🎉</div>
+      <div style="font-family:'Baloo 2',cursive;font-size:28px;font-weight:800;color:var(--bl)" id="prize-txt"></div>
+      <p id="prize-desc" style="color:var(--gy);font-size:13px;margin-bottom:12px"></p>
+      <div class="coupon-box" id="coupon-box">
+        <div style="font-size:12px;opacity:.8;margin-bottom:4px">আপনার কুপন কোড</div>
+        <div class="coupon-code" id="coupon-code-txt"></div>
+        <div id="coupon-info-txt" style="font-size:12px;opacity:.85"></div>
+        <div style="font-size:11px;background:rgba(255,255,255,0.15);padding:6px 10px;border-radius:8px;margin-top:10px">এই কোডটি দোকানে দেখান এবং অফার গ্রহণ করুন</div>
+      </div>
+      <button class="btn-p" onclick="waShare()" style="width:100%;justify-content:center;margin-bottom:8px">📱 WhatsApp-এ শেয়ার করুন</button>
+      <button class="btn-o" onclick="showPage('myoffers')" style="width:100%;justify-content:center">🎟️ আমার সব অফার দেখুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- MY OFFERS -->
+<div id="page-myoffers" class="page">
+  <div class="sec">
+    <div class="sec-hd">🎟️ আমার অফার</div>
+    <div id="my-offers-list"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="page-profile" class="page">
+  <div class="sec" id="profile-content"></div>
+</div>
+
+<!-- HOW -->
+<div id="page-how" class="page">
+  <div class="sec">
+    <button class="back" onclick="showPage('home')">← পেছনে</button>
+    <div class="sec-hd">কীভাবে কাজ করে?</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card" style="display:flex;gap:14px;align-items:center"><div style="width:50px;height:50px;background:var(--bl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📱</div><div><div style="font-weight:700;font-size:15px;margin-bottom:3px">১. বোতল স্ক্যান করুন</div><div style="font-size:12px;color:var(--gy)">AquaRewards বোতলের QR কোড স্ক্যান করুন</div></div></div>
+      <div class="card" style="display:flex;gap:14px;align-items:center"><div style="width:50px;height:50px;background:#7B1FA2;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎯</div><div><div style="font-weight:700;font-size:15px;margin-bottom:3px">২. ক্যাটাগরি বেছে নিন</div><div style="font-size:12px;color:var(--gy)">খাবার, স্বাস্থ্য, শিক্ষা — যেটা চান বাছুন</div></div></div>
+      <div class="card" style="display:flex;gap:14px;align-items:center"><div style="width:50px;height:50px;background:#F57F17;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎡</div><div><div style="font-weight:700;font-size:15px;margin-bottom:3px">৩. চাকা ঘোরান</div><div style="font-size:12px;color:var(--gy)">দোকান বেছে চাকা ঘুরিয়ে অফার জিতুন</div></div></div>
+      <div class="card" style="display:flex;gap:14px;align-items:center"><div style="width:50px;height:50px;background:var(--gr);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎟️</div><div><div style="font-weight:700;font-size:15px;margin-bottom:3px">৪. কুপন দিয়ে ছাড় নিন</div><div style="font-size:12px;color:var(--gy)">Unique কোড দোকানে দেখিয়ে ছাড় নিন। এক কোড এক ক্যাটাগরিতে একবার।</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MERCHANT -->
+<div id="page-merchant" class="page">
+  <div class="sec">
+    <div class="sec-hd">🏪 দোকান পোর্টাল</div>
+    <div id="merchant-content">
+      <div class="card">
+        <h2 style="font-family:'Baloo 2',cursive;font-size:20px;margin-bottom:14px">দোকান লগইন</h2>
+        <label class="lbl">দোকানের কোড</label>
+        <input class="inp" id="m-code" placeholder="যেমন: BREW001" style="text-transform:uppercase">
+        <label class="lbl">পাসওয়ার্ড</label>
+        <input class="inp" type="password" id="m-pass" placeholder="••••••">
+        <button class="btn-s" onclick="merchantLogin()">লগইন করুন</button>
+        <p style="font-size:11px;color:var(--gy);margin-top:10px;text-align:center">দোকান কোড ও পাসওয়ার্ড PaniRewards থেকে পাবেন</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AD BOOKING -->
+<div id="page-adbooking" class="page">
+  <div class="sec">
+    <button class="back" onclick="showPage('home')">← পেছনে</button>
+    <div class="sec-hd">📢 বিজ্ঞাপন বুক করুন</div>
+
+    <div style="background:linear-gradient(135deg,var(--bl),var(--bl2));color:#fff;border-radius:16px;padding:18px;margin-bottom:16px">
+      <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:6px">🌊 Pani বোতলে আপনার Ad</div>
+      <p style="font-size:12px;opacity:.9;margin-bottom:10px">হাজার হাজার মানুষের কাছে আপনার ব্যবসার প্রচার করুন!</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center"><div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:800">৫০০০+</div><div style="font-size:10px;opacity:.85">বোতল/মাস</div></div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center"><div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:800">রংপুর</div><div style="font-size:10px;opacity:.85">বিতরণ এলাকা</div></div>
+      </div>
+    </div>
+
+    <!-- Volume Calculator -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:10px">🧮 লেবেল Ad মূল্য ক্যালকুলেটর</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:#EFF6FF;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--gy);margin-bottom:2px">১০০০-৯৯৯৯</div><div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--bl)">৳৮</div><div style="font-size:10px;color:var(--gy)">প্রতি বোতল</div></div>
+        <div style="background:#DCFCE7;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--gy);margin-bottom:2px">১০,০০০+</div><div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--gr)">৳৭</div><div style="font-size:10px;color:var(--gy)">প্রতি বোতল</div></div>
+        <div style="background:#FEF3C7;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--gy);margin-bottom:2px">২০,০০০+</div><div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--or)">৳৫</div><div style="font-size:10px;color:var(--gy)">প্রতি বোতল</div></div>
+      </div>
+      <input class="inp" type="number" id="calc-b" placeholder="বোতলের সংখ্যা লিখুন" oninput="calcPrice()">
+      <div id="calc-res" style="display:none;background:var(--bg);border-radius:10px;padding:12px;text-align:center;margin-top:10px">
+        <div style="font-size:12px;color:var(--gy)">মোট খরচ</div>
+        <div id="calc-total" style="font-family:'Baloo 2',cursive;font-size:26px;font-weight:800;color:var(--bl)"></div>
+        <div id="calc-det" style="font-size:11px;color:var(--gy);margin-top:3px"></div>
+      </div>
+    </div>
+
+    <!-- Website Ad Spots -->
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">📍 Website বিজ্ঞাপনের স্থান</div>
+    <div id="pkg-home" class="pkg-c" onclick="selPkg('home','Home Page Banner','৳৫০০/মাস',500)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700;font-size:14px">🏠 Home Page Banner</div><div style="font-size:11px;color:var(--gy);margin-top:2px">সবচেয়ে বেশি মানুষ দেখে</div></div>
+        <div style="text-align:right"><div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--bl)">৳৫০০</div><div style="font-size:10px;color:var(--gy)">/মাস</div></div>
+      </div>
+    </div>
+    <div id="pkg-mid" class="pkg-c" onclick="selPkg('mid','Middle Page Ad','৳৩০০/মাস',300)" style="position:relative">
+      <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--bl);color:#fff;font-size:10px;font-weight:700;padding:2px 12px;border-radius:20px">জনপ্রিয়</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700;font-size:14px">📌 Middle Page Ad</div><div style="font-size:11px;color:var(--gy);margin-top:2px">স্ক্রল করতে গিয়ে দেখে</div></div>
+        <div style="text-align:right"><div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--bl)">৳৩০০</div><div style="font-size:10px;color:var(--gy)">/মাস</div></div>
+      </div>
+    </div>
+    <div id="pkg-combo" class="pkg-c" onclick="selPkg('combo','Combo (Home + Mid)','৳৬০০/মাস',600)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700;font-size:14px">💎 Combo (Home + Mid)</div><div style="font-size:11px;color:var(--gr);margin-top:2px">৳২০০ সাশ্রয়!</div></div>
+        <div style="text-align:right"><div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--bl)">৳৬০০</div><div style="font-size:10px;color:var(--gy)">/মাস</div></div>
+      </div>
+    </div>
+    <div id="pkg-label" class="pkg-c" onclick="selPkg('label','বোতলের লেবেল','ভলিউম অনুযায়ী',0)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700;font-size:14px">🏷️ বোতলের লেবেল</div><div style="font-size:11px;color:var(--or);margin-top:2px">সবচেয়ে বেশি প্রচার</div></div>
+        <div style="text-align:right"><div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--or)">৳৫-৮</div><div style="font-size:10px;color:var(--gy)">/বোতল</div></div>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div style="font-weight:700;font-size:15px;margin:16px 0 10px">📝 বুকিং ফর্ম</div>
+    <div class="card">
+      <label class="lbl">প্রতিষ্ঠানের নাম *</label>
+      <input class="inp" id="ad-biz" placeholder="যেমন: MediCare Pharmacy">
+      <label class="lbl">যোগাযোগের নাম *</label>
+      <input class="inp" id="ad-contact" placeholder="আপনার নাম">
+      <label class="lbl">মোবাইল নম্বর *</label>
+      <input class="inp" type="tel" id="ad-phone" placeholder="01XXXXXXXXX">
+      <label class="lbl">ঠিকানা</label>
+      <input class="inp" id="ad-addr" placeholder="দোকানের ঠিকানা">
+      <label class="lbl">বিজ্ঞাপনে কী দেখাতে চান?</label>
+      <input class="inp" id="ad-msg" placeholder="যেমন: ২০% ছাড়, ফ্রি হোম ডেলিভারি...">
+      <label class="lbl">বোতলের সংখ্যা (লেবেল ad হলে)</label>
+      <input class="inp" type="number" id="ad-bottles" placeholder="যেমন: 5000">
+
+      <div style="background:var(--bg);border-radius:12px;padding:14px;margin-top:14px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:10px">💳 পেমেন্ট করুন</div>
+        <div style="font-size:13px;color:#444;margin-bottom:8px">নিচের নম্বরে bKash/Nagad-এ পেমেন্ট করুন:</div>
+        <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-size:13px;font-weight:600">📱 bKash:</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:monospace;font-size:16px;font-weight:800;color:#E2136E">01747090375</span>
+              <button onclick="window.open('https://shop.bkash.com/pani01747090375','_blank')" style="background:#E2136E;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Pay</button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:13px;font-weight:600">📱 Nagad:</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:monospace;font-size:16px;font-weight:800;color:#F7941D">01747090375</span>
+              <button onclick="copyNum()" style="background:#F7941D;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Copy</button>
+            </div>
+          </div>
+        </div>
+        <div id="sel-pkg-info" style="font-size:13px;color:var(--bl);font-weight:600">⬆️ উপরে প্যাকেজ বেছে নিন</div>
+      </div>
+
+      <label class="lbl">bKash/Nagad Transaction ID *</label>
+      <input class="inp" id="ad-txid" placeholder="যেমন: 8N7A3K2P1Q">
+      <button class="btn-s" onclick="submitAd()">📤 বুকিং জমা দিন</button>
+      <p style="font-size:11px;color:var(--gy);margin-top:10px;text-align:center">জমা দেওয়ার পর ২৪ ঘণ্টার মধ্যে confirm করা হবে</p>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div class="sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="sec-hd" style="margin:0">⚙️ Admin Panel</div>
+      <button class="nbtn" onclick="adminLogout()" style="background:#FEE2E2;color:#C62828">🚪 লগআউট</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="card" style="text-align:center"><div class="stat-n" id="adm-tx">0</div><div class="stat-l">মোট লেনদেন</div></div>
+      <div class="card" style="text-align:center"><div class="stat-n" id="adm-comm">৳0</div><div class="stat-l">মোট কমিশন</div></div>
+      <div class="card" style="text-align:center"><div class="stat-n" id="adm-codes">0</div><div class="stat-l">কুপন ব্যবহার</div></div>
+      <div class="card" style="text-align:center"><div class="stat-n" id="adm-amt">৳0</div><div class="stat-l">মোট বিক্রয়</div></div>
+    </div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">সাম্প্রতিক লেনদেন</div>
+    <div id="adm-list"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <div class="bni active" id="nav-home" onclick="showPage('home')"><span class="ic">🏠</span><span>হোম</span></div>
+  <div class="bni" id="nav-categories" onclick="showPage('categories')"><span class="ic">🏷️</span><span>অফার</span></div>
+  <div class="bni-scan" onclick="showPage('categories')">🎯</div>
+  <div class="bni" id="nav-myoffers" onclick="showPage('myoffers')"><span class="ic">🎟️</span><span>আমার</span></div>
+  <div class="bni" id="nav-profile" onclick="showPage('profile')"><span class="ic">👤</span><span>প্রোফাইল</span></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box" id="modal-body"></div>
+</div>
+
+<script>
+// DATA
+const SHOPS = {
+  food:[
+    {id:'BREW001',name:'Brew Café',icon:'☕',bg:'#FFF3E0',sub:'কফি ও স্ন্যাকস',pass:'brew123',
+     prizes:[{l:'20% ছাড়',d:'যেকোনো খাবারে ২০% ছাড়',c:10},{l:'15% ছাড়',d:'পানীয়তে ১৫% ছাড়',c:8},{l:'ফ্রি কফি',d:'যেকোনো অর্ডারে ১টি ফ্রি কফি',c:5},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য! আবার স্ক্যান করুন',c:0},{l:'25% ছাড়',d:'পারিবারিক সেটে ২৫% ছাড়',c:12},{l:'10% ছাড়',d:'টেকওয়েতে ১০% ছাড়',c:5}]},
+    {id:'PIZZA001',name:'Pizza Corner',icon:'🍕',bg:'#FCE4EC',sub:'পিৎজা ও ফাস্টফুড',pass:'pizza123',
+     prizes:[{l:'25% ছাড়',d:'ফ্যামিলি সেটে ২৫% ছাড়',c:12},{l:'ফ্রি ড্রিংক',d:'যেকোনো পিৎজায় ফ্রি ড্রিংক',c:6},{l:'15% ছাড়',d:'সিঙ্গেল পিৎজায় ১৫% ছাড়',c:8},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'30% ছাড়',d:'বিশেষ অফার ৩০% ছাড়',c:15},{l:'10% ছাড়',d:'ডেলিভারিতে ১০% ছাড়',c:5}]},
+    {id:'RICE001',name:'ভাত ঘর',icon:'🍚',bg:'#DCFCE7',sub:'দেশীয় খাবার',pass:'rice123',
+     prizes:[{l:'২০ টাকা ছাড়',d:'যেকোনো থালায় ২০ টাকা ছাড়',c:8},{l:'ফ্রি ডেজার্ট',d:'থালার সাথে ফ্রি মিষ্টি',c:5},{l:'15% ছাড়',d:'দুপুরে ১৫% ছাড়',c:7},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'৫০ টাকা ছাড়',d:'২০০ টাকার উপরে ৫০ ছাড়',c:10},{l:'10% ছাড়',d:'রাতে ১০% ছাড়',c:5}]}
+  ],
+  health:[
+    {id:'MEDI001',name:'MediCare Pharmacy',icon:'💊',bg:'#DCFCE7',sub:'ওষুধের দোকান',pass:'medi123',
+     prizes:[{l:'৳৫০ ছাড়',d:'৳৫০০+ কেনায় ৳৫০ ছাড়',c:8},{l:'10% ছাড়',d:'সব ওষুধে ১০% ছাড়',c:10},{l:'ফ্রি ভিটামিন',d:'কেনার সাথে ফ্রি মাল্টিভিটামিন',c:5},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'15% ছাড়',d:'প্রেসক্রিপশনে ১৫% ছাড়',c:12},{l:'৳৩০ ছাড়',d:'৳৩০০+ কেনায় ৳৩০ ছাড়',c:6}]},
+    {id:'LIFE001',name:'LifeCare Diagnostic',icon:'🏥',bg:'#E0F2F1',sub:'ডায়াগনস্টিক সেন্টার',pass:'life123',
+     prizes:[{l:'20% ছাড়',d:'সব টেস্টে ২০% ছাড়',c:15},{l:'15% ছাড়',d:'রক্ত পরীক্ষায় ১৫% ছাড়',c:12},{l:'10% ছাড়',d:'আলট্রাসনোগ্রামে ১০% ছাড়',c:8},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'25% ছাড়',d:'প্যাকেজ টেস্টে ২৫% ছাড়',c:18},{l:'ফ্রি কনসালটেশন',d:'ডাক্তার পরামর্শ ফ্রি',c:0}]},
+    {id:'DENT001',name:'SmileCare Dental',icon:'🦷',bg:'#DBEAFE',sub:'ডেন্টাল ক্লিনিক',pass:'dent123',
+     prizes:[{l:'15% ছাড়',d:'চেকআপে ১৫% ছাড়',c:12},{l:'20% ছাড়',d:'ক্লিনিংয়ে ২০% ছাড়',c:15},{l:'10% ছাড়',d:'ফিলিংয়ে ১০% ছাড়',c:8},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'ফ্রি চেকআপ',d:'প্রথমবার ফ্রি চেকআপ',c:0},{l:'25% ছাড়',d:'রুট ক্যানেলে ২৫% ছাড়',c:18}]}
+  ],
+  education:[
+    {id:'SKILL001',name:'SkillUp Coaching',icon:'📚',bg:'#EDE7F6',sub:'ইংরেজি ও আইএলটিএস',pass:'skill123',
+     prizes:[{l:'15% ছাড়',d:'যেকোনো কোর্সে ১৫% ছাড়',c:12},{l:'20% ছাড়',d:'আইএলটিএসে ২০% ছাড়',c:15},{l:'ফ্রি ট্রায়াল',d:'৭ দিন ফ্রি ক্লাস',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'25% ছাড়',d:'ব্যাচ ভর্তিতে ২৫% ছাড়',c:18},{l:'৳১০০০ ছাড়',d:'ভর্তিতে ৳১০০০ ছাড়',c:10}]},
+    {id:'MATH001',name:'MathCare Academy',icon:'🧮',bg:'#FCE4EC',sub:'গণিত ও বিজ্ঞান',pass:'math123',
+     prizes:[{l:'20% ছাড়',d:'ভর্তিতে ২০% ছাড়',c:15},{l:'15% ছাড়',d:'মাসিক ফিতে ১৫% ছাড়',c:12},{l:'ফ্রি বই',d:'ভর্তিতে ফ্রি নোটবুক',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'৳৫০০ ছাড়',d:'ভর্তিতে ৳৫০০ ছাড়',c:8},{l:'25% ছাড়',d:'বার্ষিক প্যাকেজে ২৫% ছাড়',c:18}]}
+  ],
+  religious:[
+    {id:'HAJ001',name:'Al-Huda Travel',icon:'🕌',bg:'#DCFCE7',sub:'হজ্জ ও উমরাহ',pass:'haj123',
+     prizes:[{l:'৳৫০০০ ছাড়',d:'উমরাহ প্যাকেজে ৳৫০০০ ছাড়',c:20},{l:'ফ্রি ভিসা',d:'প্যাকেজে ফ্রি ভিসা প্রসেসিং',c:15},{l:'10% ছাড়',d:'গ্রুপ ট্যুরে ১০% ছাড়',c:10},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'15% ছাড়',d:'আর্লি বুকিংয়ে ১৫% ছাড়',c:12},{l:'ফ্রি হোটেল',d:'১ রাত ফ্রি',c:8}]}
+  ],
+  lifestyle:[
+    {id:'FURN001',name:'HomeStyle Furniture',icon:'🛋️',bg:'#FFF3E0',sub:'আসবাবপত্র',pass:'furn123',
+     prizes:[{l:'15% ছাড়',d:'যেকোনো আসবাবে ১৫% ছাড়',c:12},{l:'20% ছাড়',d:'বেডরুম সেটে ২০% ছাড়',c:15},{l:'ফ্রি ডেলিভারি',d:'৳৫০০০+ অর্ডারে ফ্রি ডেলিভারি',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'10% ছাড়',d:'ইলেক্ট্রনিকসে ১০% ছাড়',c:8},{l:'25% ছাড়',d:'ক্লিয়ারেন্স সেলে ২৫% ছাড়',c:18}]}
+  ],
+  auto:[
+    {id:'BIKE001',name:'Bike Zone Service',icon:'🏍️',bg:'#FCE4EC',sub:'বাইক সার্ভিসিং',pass:'bike123',
+     prizes:[{l:'15% ছাড়',d:'ফুল সার্ভিসে ১৫% ছাড়',c:12},{l:'৳২০০ ছাড়',d:'ইঞ্জিন ওয়েল চেঞ্জে ৳২০০ ছাড়',c:8},{l:'ফ্রি ওয়াশ',d:'সার্ভিসের সাথে ফ্রি ওয়াশ',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'20% ছাড়',d:'টায়ার চেঞ্জে ২০% ছাড়',c:15},{l:'10% ছাড়',d:'যন্ত্রাংশে ১০% ছাড়',c:8}]}
+  ]
+};
+const CAT_NAMES={food:'খাবার',health:'স্বাস্থ্য',education:'শিক্ষা',religious:'ধর্মীয়',lifestyle:'লাইফস্টাইল',auto:'অটো'};
+const ADMIN_PASS='admin@pani2025';
+const WA='8801747090375';
+let curShop=null,curCat=null,spinning=false,curAngle=0,wonPrize=null,curCoupon=null,mShop=null,selPkgData=null;
+
+// PAGE NAV
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  const nv=document.getElementById('nav-'+name);
+  if(nv) nv.classList.add('active');
+  if(name==='myoffers') loadMyOffers();
+  if(name==='profile') loadProfile();
+  if(name==='admin') loadAdmin();
+  if(name==='merchant'){
+    const c=localStorage.getItem('m_code'), p=localStorage.getItem('m_pass');
+    if(c&&p){
+      let f=null;
+      for(const cat of Object.values(SHOPS)){const s=cat.find(x=>x.id===c&&x.pass===p);if(s){f=s;break;}}
+      if(f){mShop=f;showMDash();}
+    }
+  }
+  if(name==='spin') drawWheel();
+  window.scrollTo(0,0);
+}
+
+// CATEGORY
+function showCategory(cat){
+  curCat=cat;
+  document.getElementById('shops-title').textContent=CAT_NAMES[cat]+' — দোকান সমূহ';
+  const shops=SHOPS[cat]||[];
+  document.getElementById('shops-list').innerHTML=shops.map(s=>`
+    <div class="shop-c" onclick="openShop('${cat}','${s.id}')">
+      <div class="shop-ic" style="background:${s.bg}">${s.icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:15px">${s.name}</div>
+        <div style="font-size:12px;color:var(--gy)">${s.sub}</div>
+        <span class="tag bl" style="margin-top:5px">স্পিন করুন ও জিতুন</span>
+      </div>
+      <span style="color:var(--gy);font-size:20px">›</span>
+    </div>`).join('');
+  showPage('shops');
+}
+
+// OPEN SHOP
+function openShop(cat,id){
+  const shop=(SHOPS[cat]||[]).find(s=>s.id===id);
+  if(!shop) return;
+  curShop=shop; curCat=cat;
+  document.getElementById('spin-shop-info').innerHTML=`
+    <div style="font-size:36px">${shop.icon}</div>
+    <div><div style="font-weight:700;font-size:15px">${shop.name}</div><div style="font-size:12px;color:var(--gy)">${shop.sub}</div><span class="tag gr" style="margin-top:4px">🎡 স্পিন করুন</span></div>`;
+  document.getElementById('spin-result').style.display='none';
+  document.getElementById('spin-btn').disabled=false;
+  showPage('spin');
+}
+
+// WHEEL
+function drawWheel(angle){
+  angle=angle||curAngle;
+  const canvas=document.getElementById('wcanvas');
+  if(!canvas||!curShop) return;
+  const prizes=curShop.prizes;
+  const ctx=canvas.getContext('2d');
+  const cx=140,cy=140,r=128;
+  const slice=(2*Math.PI)/prizes.length;
+  const colors=['#0277BD','#2E7D32','#7B1FA2','#E65100','#F57F17','#006064'];
+  ctx.clearRect(0,0,280,280);
+  prizes.forEach((p,i)=>{
+    const st=angle+i*slice,en=st+slice;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,st,en);ctx.closePath();
+    ctx.fillStyle=colors[i%colors.length];ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(st+slice/2);
+    ctx.textAlign='right';ctx.fillStyle='#fff';
+    ctx.font='bold 12px Hind Siliguri,sans-serif';
+    ctx.fillText(p.l,r-8,4);ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(cx,cy,16,0,2*Math.PI);
+  ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.stroke();
+}
+
+function doSpin(){
+  if(spinning||!curShop) return;
+  const key=`spun_${curShop.id}_${curCat}`;
+  if(localStorage.getItem(key)){
+    showModal('<h2>⚠️ ইতিমধ্যে স্পিন করেছেন</h2><p>আপনি এই দোকানে এই ক্যাটাগরিতে ইতিমধ্যে অফার পেয়েছেন।</p><button class="mb bl" onclick="closeModal();showPage(\'myoffers\')">আমার অফার দেখুন</button><button class="mb gy" onclick="closeModal()">বন্ধ করুন</button>');
+    return;
+  }
+  spinning=true;
+  document.getElementById('spin-btn').disabled=true;
+  document.getElementById('spin-result').style.display='none';
+  const extra=5+Math.floor(Math.random()*5);
+  const extraA=Math.random()*2*Math.PI;
+  const total=extra*2*Math.PI+extraA;
+  const dur=4000,start=performance.now(),startA=curAngle;
+  function animate(now){
+    const el=now-start,prog=Math.min(el/dur,1);
+    const ease=1-Math.pow(1-prog,4);
+    curAngle=startA+total*ease;
+    drawWheel(curAngle);
+    if(prog<1){requestAnimationFrame(animate);}
+    else{
+      spinning=false;
+      document.getElementById('spin-btn').disabled=false;
+      const prizes=curShop.prizes;
+      const slice=(2*Math.PI)/prizes.length;
+      const norm=((curAngle%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+      const ptr=(2*Math.PI-norm+Math.PI*1.5)%(2*Math.PI);
+      const idx=Math.floor(ptr/slice)%prizes.length;
+      wonPrize=prizes[idx];
+      showPrize(wonPrize);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showPrize(prize){
+  document.getElementById('prize-txt').textContent=prize.l;
+  document.getElementById('prize-desc').textContent=prize.d;
+  if(prize.c>0){
+    const code=genCode();
+    curCoupon={code,shop:curShop.id,shopName:curShop.name,cat:curCat,prize:prize.l,desc:prize.d,comm:prize.c,date:new Date().toLocaleDateString('bn-BD'),used:false};
+    saveCoupon(curCoupon);
+    localStorage.setItem(`spun_${curShop.id}_${curCat}`,'1');
+    document.getElementById('coupon-code-txt').textContent=code;
+    document.getElementById('coupon-info-txt').textContent=`${curShop.name} | ${CAT_NAMES[curCat]}`;
+    document.getElementById('coupon-box').style.display='block';
+  } else {
+    document.getElementById('coupon-box').style.display='none';
+  }
+  document.getElementById('spin-result').style.display='block';
+}
+
+function genCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code='PR';
+  for(let i=0;i<6;i++) code+=c[Math.floor(Math.random()*c.length)];
+  return code;
+}
+
+function saveCoupon(coupon){
+  const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
+  coupons.unshift(coupon);
+  localStorage.setItem('pr_coupons',JSON.stringify(coupons));
+  saveToFB('coupons',coupon);
+}
+
+function waShare(){
+  if(!curCoupon) return;
+  const msg=`🎉 আমি PaniRewards থেকে "${curCoupon.prize}" জিতেছি!\n🏪 দোকান: ${curCoupon.shopName}\n🎟️ কুপন কোড: ${curCoupon.code}\n\nএই কোডটি দোকানে দেখান এবং আপনার অফার নিন।\n\nPaniRewards: panirewards.netlify.app`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// MY OFFERS
+function loadMyOffers(){
+  const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
+  const el=document.getElementById('my-offers-list');
+  if(!coupons.length){
+    el.innerHTML=`<div style="text-align:center;padding:50px 20px;color:var(--gy)"><div style="font-size:50px;margin-bottom:12px">🎟️</div><p>এখনো কোনো অফার নেই।<br>ক্যাটাগরি বেছে দোকান থেকে অফার জিতুন!</p><button class="btn-p" style="margin:16px auto;display:flex" onclick="showPage('categories')">🎯 অফার দেখুন</button></div>`;
+    return;
+  }
+  el.innerHTML=coupons.map(c=>`
+    <div class="my-c">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div style="font-weight:700;font-size:15px">${c.shopName}</div><div style="font-size:12px;color:var(--gy);margin:2px 0">${c.prize} — ${c.desc}</div></div>
+        <span class="tag ${c.used?'rd':'gr'}">${c.used?'ব্যবহৃত':'সক্রিয়'}</span>
+      </div>
+      <div style="font-family:monospace;font-size:20px;font-weight:800;color:var(--bl);letter-spacing:2px;margin:6px 0">${c.code}</div>
+      <div style="font-size:11px;color:var(--gy)">📅 ${c.date} | 📂 ${CAT_NAMES[c.cat]||c.cat}</div>
+      ${!c.used?`<button class="btn-p" style="margin-top:10px;padding:8px 14px;font-size:12px" onclick="waCoupon('${c.code}','${c.shopName}','${c.prize}')">📱 WhatsApp-এ শেয়ার</button>`:''}
+    </div>`).join('');
+}
+
+function waCoupon(code,shop,prize){
+  const msg=`🎉 PaniRewards কুপন!\n\n🏪 দোকান: ${shop}\n🎁 অফার: ${prize}\n🎟️ কোড: ${code}\n\nএই কোডটি দোকানে দেখান।`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// MERCHANT
+function merchantLogin(){
+  const code=document.getElementById('m-code').value.toUpperCase().trim();
+  const pass=document.getElementById('m-pass').value;
+  let found=null;
+  for(const cat of Object.values(SHOPS)){const s=cat.find(x=>x.id===code&&x.pass===pass);if(s){found=s;break;}}
+  if(!found){showModal('<h2>❌ ভুল তথ্য</h2><p>দোকান কোড বা পাসওয়ার্ড ভুল।</p><button class="mb gy" onclick="closeModal()">আবার চেষ্টা করুন</button>');return;}
+  mShop=found;
+  localStorage.setItem('m_code',code);
+  localStorage.setItem('m_pass',pass);
+  showMDash();
+}
+
+function showMDash(){
+  const shop=mShop;
+  const txs=JSON.parse(localStorage.getItem('pr_txs')||'[]').filter(t=>t.shopId===shop.id);
+  const tAmt=txs.reduce((a,b)=>a+(b.amount||0),0);
+  const tComm=txs.reduce((a,b)=>a+(b.commission||0),0);
+  document.getElementById('merchant-content').innerHTML=`
+    <div style="background:linear-gradient(135deg,var(--bl),var(--bl2));color:#fff;border-radius:16px;padding:18px;margin-bottom:14px">
+      <div style="font-size:28px;margin-bottom:4px">${shop.icon}</div>
+      <div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:800">${shop.name}</div>
+      <div style="font-size:12px;opacity:.8">ID: ${shop.id}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="card" style="text-align:center"><div class="stat-n">${txs.length}</div><div class="stat-l">মোট লেনদেন</div></div>
+      <div class="card" style="text-align:center"><div class="stat-n">৳${tComm}</div><div class="stat-l">কমিশন দেয়</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:12px">🔍 কুপন যাচাই করুন</div>
+      <label class="lbl">কুপন কোড</label>
+      <input class="inp" id="v-code" placeholder="PR######" style="text-transform:uppercase;font-size:18px;letter-spacing:2px">
+      <label class="lbl">অর্ডারের পরিমাণ (টাকায়)</label>
+      <input class="inp" type="number" id="v-amount" placeholder="যেমন: 500">
+      <button class="btn-s" onclick="verifyCoupon()">✅ যাচাই ও কনফার্ম করুন</button>
+    </div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:10px">সাম্প্রতিক লেনদেন</div>
+    ${txs.length?txs.slice(0,10).map(t=>`
+      <div class="card" style="margin-bottom:8px;font-size:13px">
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-family:monospace;font-weight:700">${t.code}</span>
+          <span style="color:var(--gr);font-weight:700">৳${t.amount}</span>
+        </div>
+        <div style="color:var(--gy);font-size:11px;margin-top:4px">${t.prize} | কমিশন: ৳${t.commission} | ${t.date}</div>
+      </div>`).join(''):'<p style="color:var(--gy);font-size:13px">এখনো কোনো লেনদেন নেই</p>'}
+    <button class="mb gy" style="width:100%;margin-top:14px" onclick="mLogout()">🚪 লগআউট</button>`;
+}
+
+function verifyCoupon(){
+  const code=document.getElementById('v-code').value.toUpperCase().trim();
+  const amount=parseFloat(document.getElementById('v-amount').value)||0;
+  if(!code||amount<=0){showModal('<h2>⚠️ তথ্য দিন</h2><p>কুপন কোড এবং অর্ডারের পরিমাণ দিন।</p><button class="mb gy" onclick="closeModal()">ঠিক আছে</button>');return;}
+  const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
+  const idx=coupons.findIndex(c=>c.code===code);
+  if(idx===-1){showModal('<h2>❌ কোড পাওয়া যায়নি</h2><p>এই কুপন কোডটি বৈধ নয়।</p><button class="mb rd" onclick="closeModal()">বন্ধ করুন</button>');return;}
+  const coupon=coupons[idx];
+  if(coupon.used){showModal(`<h2>❌ ইতিমধ্যে ব্যবহৃত</h2><p>এই কোডটি আগেই ব্যবহার করা হয়েছে।<br>তারিখ: ${coupon.usedDate}</p><button class="mb rd" onclick="closeModal()">বন্ধ করুন</button>`);return;}
+  if(coupon.shop!==mShop.id){showModal(`<h2>❌ ভুল দোকান</h2><p>এই কোডটি <strong>${coupon.shopName}</strong> এর জন্য।</p><button class="mb gy" onclick="closeModal()">বন্ধ করুন</button>`);return;}
+  const commission=Math.round(amount*coupon.comm/100);
+  showModal(`
+    <h2>✅ কোড বৈধ!</h2>
+    <div style="background:#DCFCE7;border-radius:12px;padding:14px;margin:12px 0;text-align:left">
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px">${coupon.prize}</div>
+      <div style="font-size:12px;color:var(--gy);margin-bottom:10px">${coupon.desc}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:13px;color:var(--gy)">অর্ডার পরিমাণ:</span>
+        <span style="font-weight:700">৳${amount}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:13px;color:var(--rd)">PaniRewards কমিশন (${coupon.comm}%):</span>
+        <span style="font-weight:700;color:var(--rd)">৳${commission}</span>
+      </div>
+    </div>
+    <button class="mb gr" onclick="confirmCoupon('${code}',${amount},${commission},'${coupon.prize}')">✅ কনফার্ম করুন</button>
+    <button class="mb gy" onclick="closeModal()">বাতিল</button>`);
+}
+
+function confirmCoupon(code,amount,commission,prize){
+  const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
+  const idx=coupons.findIndex(c=>c.code===code);
+  if(idx>-1){coupons[idx].used=true;coupons[idx].usedDate=new Date().toLocaleDateString('bn-BD');coupons[idx].usedAt=mShop.name;localStorage.setItem('pr_coupons',JSON.stringify(coupons));}
+  const tx={code,shopId:mShop.id,shopName:mShop.name,amount,commission,prize,date:new Date().toLocaleDateString('bn-BD'),time:new Date().toLocaleTimeString('bn-BD')};
+  const txs=JSON.parse(localStorage.getItem('pr_txs')||'[]');
+  txs.unshift(tx);localStorage.setItem('pr_txs',JSON.stringify(txs));
+  saveToFB('transactions',tx);
+  // WhatsApp notify admin
+  const msg=`💰 কুপন ব্যবহার হয়েছে!\n\n🏪 দোকান: ${mShop.name}\n🎟️ কোড: ${code}\n🎁 অফার: ${prize}\n💵 অর্ডার: ৳${amount}\n💸 আপনার কমিশন: ৳${commission}\n📅 ${new Date().toLocaleString('bn-BD')}`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+  closeModal();
+  showModal(`<h2>🎉 সফল!</h2><p>লেনদেন রেকর্ড হয়েছে।<br>কমিশন: <strong>৳${commission}</strong></p><button class="mb bl" onclick="closeModal();showMDash()">ঠিক আছে</button>`);
+}
+
+function mLogout(){localStorage.removeItem('m_code');localStorage.removeItem('m_pass');mShop=null;document.getElementById('merchant-content').innerHTML=`<div class="card"><h2 style="font-family:'Baloo 2',cursive;font-size:20px;margin-bottom:14px">দোকান লগইন</h2><label class="lbl">দোকানের কোড</label><input class="inp" id="m-code" placeholder="যেমন: BREW001" style="text-transform:uppercase"><label class="lbl">পাসওয়ার্ড</label><input class="inp" type="password" id="m-pass" placeholder="••••••"><button class="btn-s" onclick="merchantLogin()">লগইন করুন</button></div>`;}
+
+// ADMIN
+function adminLogin(){
+  if(localStorage.getItem('adm_logged')==='1'){showPage('admin');return;}
+  showModal(`<h2>⚙️ Admin Login</h2><label class="lbl" style="text-align:left;display:block">পাসওয়ার্ড</label><input class="inp" type="password" id="adm-p" placeholder="Admin password" style="margin-bottom:12px"><button class="mb bl" onclick="checkAdm()">লগইন</button><button class="mb gy" onclick="closeModal()">বাতিল</button>`);
+}
+function checkAdm(){const p=document.getElementById('adm-p').value;if(p===ADMIN_PASS){localStorage.setItem('adm_logged','1');closeModal();showPage('admin');}else showModal('<h2>❌ ভুল পাসওয়ার্ড</h2><button class="mb gy" onclick="closeModal()">বন্ধ করুন</button>');}
+function adminLogout(){localStorage.removeItem('adm_logged');showPage('home');}
+
+async function loadAdmin(){
+  let txs=null;
+  try{
+    if(db&&window._fb){
+      const{collection,getDocs,query,orderBy}=window._fb;
+      const q=query(collection(db,'transactions'),orderBy('createdAt','desc'));
+      const snap=await getDocs(q);
+      txs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }
+  }catch(e){}
+  if(!txs) txs=JSON.parse(localStorage.getItem('pr_txs')||'[]');
+  const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
+  const used=coupons.filter(c=>c.used).length;
+  const tAmt=txs.reduce((a,b)=>a+(b.amount||0),0);
+  const tComm=txs.reduce((a,b)=>a+(b.commission||0),0);
+  document.getElementById('adm-tx').textContent=txs.length;
+  document.getElementById('adm-comm').textContent='৳'+tComm;
+  document.getElementById('adm-codes').textContent=used;
+  document.getElementById('adm-amt').textContent='৳'+tAmt;
+  const el=document.getElementById('adm-list');
+  if(!txs.length){el.innerHTML='<p style="color:var(--gy);text-align:center;padding:30px">এখনো কোনো লেনদেন নেই</p>';return;}
+  el.innerHTML=txs.map(t=>`
+    <div class="tx-c">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-weight:700;font-size:14px">${t.shopName}</span>
+        <span style="color:var(--gr);font-weight:800;font-size:16px">৳${t.amount}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:monospace;font-size:11px;color:var(--gy);background:var(--bg);padding:3px 8px;border-radius:6px">${t.code}</span>
+        <span style="color:var(--bl);font-size:12px;font-weight:600">কমিশন: ৳${t.commission}</span>
+      </div>
+      <div style="font-size:11px;color:var(--gy);margin-top:5px">${t.prize} | ${t.date}</div>
+    </div>`).join('');
+}
+
+// PROFILE
+function loadProfile(){
+  const name=localStorage.getItem('pr_name');
+  const phone=localStorage.getItem('pr_phone');
+  const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
+  const used=coupons.filter(c=>c.used).length;
+  const el=document.getElementById('profile-content');
+  if(name){
+    el.innerHTML=`
+      <div class="card" style="text-align:center;margin-bottom:14px">
+        <div class="prof-av">👤</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:800">${name}</div>
+        <div style="color:var(--gy);font-size:13px;margin-top:3px">${phone}</div>
+        <div class="stat-row">
+          <div class="stat-b"><div class="stat-n">${coupons.length}</div><div class="stat-l">মোট অফার</div></div>
+          <div class="stat-b"><div class="stat-n">${used}</div><div class="stat-l">ব্যবহৃত</div></div>
+          <div class="stat-b"><div class="stat-n">${coupons.length-used}</div><div class="stat-l">বাকি</div></div>
+        </div>
+      </div>
+      <button class="btn-p" style="width:100%;justify-content:center;margin-bottom:10px" onclick="showPage('myoffers')">🎟️ আমার অফার দেখুন</button>
+      <button class="mb gy" style="width:100%" onclick="if(confirm('লগআউট করবেন?')){localStorage.removeItem('pr_name');localStorage.removeItem('pr_phone');loadProfile()}">🚪 লগআউট</button>`;
+  } else {
+    el.innerHTML=`
+      <div class="card">
+        <h2 style="font-family:'Baloo 2',cursive;font-size:20px;margin-bottom:14px">👤 প্রোফাইল তৈরি করুন</h2>
+        <label class="lbl">আপনার নাম</label>
+        <input class="inp" id="u-name" placeholder="নাম লিখুন">
+        <label class="lbl">মোবাইল নম্বর</label>
+        <input class="inp" type="tel" id="u-phone" placeholder="01XXXXXXXXX">
+        <button class="btn-s" onclick="saveProfile()">✅ সেভ করুন</button>
+      </div>`;
+  }
+}
+function saveProfile(){
+  const name=document.getElementById('u-name').value;
+  const phone=document.getElementById('u-phone').value;
+  if(!name||!phone){alert('নাম ও মোবাইল নম্বর দিন');return;}
+  localStorage.setItem('pr_name',name);localStorage.setItem('pr_phone',phone);loadProfile();
+}
+
+// AD BOOKING
+let selPkgId=null;
+function selPkg(id,name,price,amount){
+  selPkgId=id;selPkgData={name,price,amount};
+  document.querySelectorAll('.pkg-c').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('pkg-'+id)?.classList.add('sel');
+  document.getElementById('sel-pkg-info').textContent=`✅ নির্বাচিত: ${name} — ${price}`;
+}
+
+function calcPrice(){
+  const b=parseInt(document.getElementById('calc-b').value)||0;
+  if(b<1000){document.getElementById('calc-res').style.display='none';return;}
+  let rate,label;
+  if(b>=20000){rate=5;label='২০,০০০+ বোতল — ৳৫/বোতল';}
+  else if(b>=10000){rate=7;label='১০,০০০-১৯,৯৯৯ বোতল — ৳৭/বোতল';}
+  else{rate=8;label='১,০০০-৯,৯৯৯ বোতল — ৳৮/বোতল';}
+  document.getElementById('calc-res').style.display='block';
+  document.getElementById('calc-total').textContent='৳'+(b*rate).toLocaleString();
+  document.getElementById('calc-det').textContent=label;
+  selPkg('label','বোতলের লেবেল','ভলিউম অনুযায়ী',0);
+  if(document.getElementById('ad-bottles')) document.getElementById('ad-bottles').value=b;
+}
+
+function copyNum(){
+  navigator.clipboard.writeText('01747090375').then(()=>{
+    showModal('<h2>✅ Copy হয়েছে!</h2><p>01747090375 copy হয়েছে। Nagad-এ paste করুন।</p><button class="mb bl" onclick="closeModal()">ঠিক আছে</button>');
+  }).catch(()=>{
+    showModal('<h2>📱 Nagad নম্বর</h2><p style="font-size:22px;font-weight:800;color:#F7941D;margin:10px 0">01747090375</p><p>এই নম্বরে Nagad-এ পেমেন্ট করুন।</p><button class="mb bl" onclick="closeModal()">ঠিক আছে</button>');
+  });
+}
+
+async function submitAd(){
+  const biz=document.getElementById('ad-biz').value.trim();
+  const contact=document.getElementById('ad-contact').value.trim();
+  const phone=document.getElementById('ad-phone').value.trim();
+  const txid=document.getElementById('ad-txid').value.trim();
+  const msg=document.getElementById('ad-msg').value.trim();
+  const addr=document.getElementById('ad-addr').value.trim();
+  const bottles=document.getElementById('ad-bottles').value||'0';
+  if(!biz||!contact||!phone||!txid){showModal('<h2>⚠️ তথ্য দিন</h2><p>সব * চিহ্নিত ঘর পূরণ করুন।</p><button class="mb gy" onclick="closeModal()">ঠিক আছে</button>');return;}
+  if(!selPkgId){showModal('<h2>⚠️ প্যাকেজ বাছুন</h2><p>একটি প্যাকেজ বেছে নিন।</p><button class="mb gy" onclick="closeModal()">ঠিক আছে</button>');return;}
+  const pkg=selPkgData;
+  try{if(db&&window._fb){const{collection,addDoc}=window._fb;await addDoc(collection(db,'ad_bookings'),{biz,contact,phone,addr,msg,package:pkg.name,amount:pkg.amount,txid,bottles,createdAt:new Date().toISOString()});}}catch(e){}
+  const waMsg=`🎉 নতুন Ad Booking!\n\n🏢 প্রতিষ্ঠান: ${biz}\n👤 যোগাযোগ: ${contact}\n📱 মোবাইল: ${phone}\n📦 প্যাকেজ: ${pkg.name} (${pkg.price})\n🫙 বোতল: ${bottles}\n💳 Transaction ID: ${txid}\n📍 ঠিকানা: ${addr}\n📝 বার্তা: ${msg}\n\nঅনুগ্রহ করে যাচাই করে confirm করুন।`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,'_blank');
+  showModal('<h2>✅ বুকিং সফল!</h2><p>আপনার বুকিং জমা হয়েছে।<br>WhatsApp-এ confirm করা হবে।</p><button class="mb bl" onclick="closeModal();showPage(\'home\')">ঠিক আছে</button>');
+  ['ad-biz','ad-contact','ad-phone','ad-addr','ad-msg','ad-txid','ad-bottles'].forEach(id=>{if(document.getElementById(id))document.getElementById(id).value='';});
+  selPkgId=null;selPkgData=null;
+}
+
+// MODAL
+function showModal(html){document.getElementById('modal-body').innerHTML=html;document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+
+// FIREBASE
+let db=null;
+async function initFB(){
+  try{
+    const{initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const{getFirestore,collection,addDoc,getDocs,query,orderBy,updateDoc,doc,where}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const app=initializeApp({apiKey:"AIzaSyCRYlKxKbwJ-Jd90mqhtVzg0TVTcmkNGHw",authDomain:"aquarewards.firebaseapp.com",projectId:"aquarewards",storageBucket:"aquarewards.firebasestorage.app",messagingSenderId:"458295752774",appId:"1:458295752774:web:ce93ec367a6212aa00f247"});
+    db=getFirestore(app);
+    window._fb={collection,addDoc,getDocs,query,orderBy,updateDoc,doc,where};
+    console.log("✅ Firebase connected!");
+  }catch(e){console.log("Firebase:",e);}
+}
+
+async function saveToFB(col,data){
+  try{if(db&&window._fb){const{collection,addDoc}=window._fb;await addDoc(collection(db,col),{...data,createdAt:new Date().toISOString()});}}catch(e){}
+}
+
+// INIT
+loadProfile();
+initFB();
+</script>
+</body>
+</html>
