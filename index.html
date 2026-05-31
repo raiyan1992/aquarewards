@@ -669,7 +669,9 @@ function showMDash(){
       <input class="inp" id="v-code" placeholder="PR######" style="text-transform:uppercase;font-size:18px;letter-spacing:2px">
       <label class="lbl">অর্ডারের পরিমাণ (টাকায়)</label>
       <input class="inp" type="number" id="v-amount" placeholder="যেমন: 500">
-      <button class="btn-s" onclick="verifyCoupon()">✅ যাচাই ও কনফার্ম করুন</button>
+      <label class="lbl">কাস্টমারের bKash নম্বর</label>
+      <input class="inp" type="tel" id="v-bkash" placeholder="01XXXXXXXXX">
+      <button class="btn-s" onclick="verifyCoupon()">✅ যাচাই ও Cashback দিন</button>
     </div>
     <div style="font-weight:700;font-size:14px;margin-bottom:10px">সাম্প্রতিক লেনদেন</div>
     ${txs.length?txs.slice(0,10).map(t=>`
@@ -686,45 +688,89 @@ function showMDash(){
 function verifyCoupon(){
   const code=document.getElementById('v-code').value.toUpperCase().trim();
   const amount=parseFloat(document.getElementById('v-amount').value)||0;
+  const bkash=document.getElementById('v-bkash').value.trim();
   if(!code||amount<=0){showModal('<h2>⚠️ তথ্য দিন</h2><p>কুপন কোড এবং অর্ডারের পরিমাণ দিন।</p><button class="mb gy" onclick="closeModal()">ঠিক আছে</button>');return;}
+  if(!bkash||bkash.length<11){showModal('<h2>⚠️ bKash নম্বর দিন</h2><p>কাস্টমারের সঠিক bKash নম্বর দিন।</p><button class="mb gy" onclick="closeModal()">ঠিক আছে</button>');return;}
   const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
   const idx=coupons.findIndex(c=>c.code===code);
   if(idx===-1){showModal('<h2>❌ কোড পাওয়া যায়নি</h2><p>এই কুপন কোডটি বৈধ নয়।</p><button class="mb rd" onclick="closeModal()">বন্ধ করুন</button>');return;}
   const coupon=coupons[idx];
   if(coupon.used){showModal(`<h2>❌ ইতিমধ্যে ব্যবহৃত</h2><p>এই কোডটি আগেই ব্যবহার করা হয়েছে।<br>তারিখ: ${coupon.usedDate}</p><button class="mb rd" onclick="closeModal()">বন্ধ করুন</button>`);return;}
   if(coupon.shop!==mShop.id){showModal(`<h2>❌ ভুল দোকান</h2><p>এই কোডটি <strong>${coupon.shopName}</strong> এর জন্য।</p><button class="mb gy" onclick="closeModal()">বন্ধ করুন</button>`);return;}
-  const commission=Math.round(amount*coupon.comm/100);
+  const cashback=Math.round(amount*coupon.comm/100);
+  const myCommission=Math.round(cashback*0.2); // আপনি ২০% রাখবেন
+  const customerCashback=cashback-myCommission;
   showModal(`
     <h2>✅ কোড বৈধ!</h2>
     <div style="background:#DCFCE7;border-radius:12px;padding:14px;margin:12px 0;text-align:left">
-      <div style="font-weight:700;font-size:15px;margin-bottom:4px">${coupon.prize}</div>
-      <div style="font-size:12px;color:var(--gy);margin-bottom:10px">${coupon.desc}</div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:8px">🎁 ${coupon.prize}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #E5E7EB">
         <span style="font-size:13px;color:var(--gy)">অর্ডার পরিমাণ:</span>
         <span style="font-weight:700">৳${amount}</span>
       </div>
-      <div style="display:flex;justify-content:space-between">
-        <span style="font-size:13px;color:var(--rd)">PaniRewards কমিশন (${coupon.comm}%):</span>
-        <span style="font-weight:700;color:var(--rd)">৳${commission}</span>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:13px;color:var(--gy)">মোট Cashback (${coupon.comm}%):</span>
+        <span style="font-weight:700">৳${cashback}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:13px;color:var(--rd)">আপনার কমিশন (২০%):</span>
+        <span style="font-weight:700;color:var(--rd)">৳${myCommission}</span>
+      </div>
+      <div style="background:#0277BD;border-radius:8px;padding:10px;margin-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;color:#fff;font-weight:600">📱 কাস্টমার bKash পাবে:</span>
+          <span style="font-weight:800;color:#FFD600;font-size:18px">৳${customerCashback}</span>
+        </div>
+        <div style="color:rgba(255,255,255,0.8);font-size:12px;margin-top:4px">bKash: ${bkash}</div>
       </div>
     </div>
-    <button class="mb gr" onclick="confirmCoupon('${code}',${amount},${commission},'${coupon.prize}')">✅ কনফার্ম করুন</button>
+    <p style="font-size:11px;color:var(--gy);margin-bottom:12px">কনফার্ম করলে আপনার WhatsApp-এ cashback পাঠানোর notification আসবে।</p>
+    <button class="mb gr" onclick="confirmCoupon('${code}',${amount},${cashback},${myCommission},${customerCashback},'${coupon.prize}','${bkash}')">✅ কনফার্ম করুন</button>
     <button class="mb gy" onclick="closeModal()">বাতিল</button>`);
 }
 
-function confirmCoupon(code,amount,commission,prize){
+function confirmCoupon(code,amount,totalCashback,myCommission,customerCashback,prize,bkash){
   const coupons=JSON.parse(localStorage.getItem('pr_coupons')||'[]');
   const idx=coupons.findIndex(c=>c.code===code);
-  if(idx>-1){coupons[idx].used=true;coupons[idx].usedDate=new Date().toLocaleDateString('bn-BD');coupons[idx].usedAt=mShop.name;localStorage.setItem('pr_coupons',JSON.stringify(coupons));}
-  const tx={code,shopId:mShop.id,shopName:mShop.name,amount,commission,prize,date:new Date().toLocaleDateString('bn-BD'),time:new Date().toLocaleTimeString('bn-BD')};
+  if(idx>-1){
+    coupons[idx].used=true;
+    coupons[idx].usedDate=new Date().toLocaleDateString('bn-BD');
+    coupons[idx].usedAt=mShop.name;
+    coupons[idx].bkash=bkash;
+    coupons[idx].cashback=customerCashback;
+    localStorage.setItem('pr_coupons',JSON.stringify(coupons));
+  }
+  const tx={
+    code, shopId:mShop.id, shopName:mShop.name,
+    amount, commission:myCommission, totalCashback,
+    customerCashback, customerBkash:bkash,
+    prize, date:new Date().toLocaleDateString('bn-BD'),
+    time:new Date().toLocaleTimeString('bn-BD'),
+    status:'pending_cashback'
+  };
   const txs=JSON.parse(localStorage.getItem('pr_txs')||'[]');
-  txs.unshift(tx);localStorage.setItem('pr_txs',JSON.stringify(txs));
+  txs.unshift(tx);
+  localStorage.setItem('pr_txs',JSON.stringify(txs));
   saveToFB('transactions',tx);
-  // WhatsApp notify admin
-  const msg=`💰 কুপন ব্যবহার হয়েছে!\n\n🏪 দোকান: ${mShop.name}\n🎟️ কোড: ${code}\n🎁 অফার: ${prize}\n💵 অর্ডার: ৳${amount}\n💸 আপনার কমিশন: ৳${commission}\n📅 ${new Date().toLocaleString('bn-BD')}`;
+
+  // WhatsApp notify admin with cashback instruction
+  const msg=`💰 নতুন Cashback অনুরোধ!\n\n🏪 দোকান: ${mShop.name}\n🎟️ কোড: ${code}\n🎁 অফার: ${prize}\n\n💵 অর্ডার: ৳${amount}\n💸 মোট Cashback: ৳${totalCashback}\n✅ আপনার কমিশন: ৳${myCommission}\n\n📱 কাস্টমারকে bKash করুন:\n━━━━━━━━━━━━━━━━━━\n📞 নম্বর: ${bkash}\n💰 পরিমাণ: ৳${customerCashback}\n━━━━━━━━━━━━━━━━━━\n\n⚠️ এখনই bKash করুন!`;
   window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
   closeModal();
-  showModal(`<h2>🎉 সফল!</h2><p>লেনদেন রেকর্ড হয়েছে।<br>কমিশন: <strong>৳${commission}</strong></p><button class="mb bl" onclick="closeModal();showMDash()">ঠিক আছে</button>`);
+  showModal(`
+    <h2>🎉 সফল!</h2>
+    <div style="background:#DCFCE7;border-radius:12px;padding:14px;margin:12px 0;text-align:left">
+      <p style="font-weight:700;margin-bottom:8px">লেনদেন রেকর্ড হয়েছে!</p>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:13px;color:var(--gy)">আপনার কমিশন:</span>
+        <span style="font-weight:700;color:var(--gr)">৳${myCommission}</span>
+      </div>
+      <div style="background:#0277BD;border-radius:8px;padding:10px;margin-top:8px;color:#fff">
+        <div style="font-size:12px;margin-bottom:4px">📱 Admin কাস্টমারকে bKash করবে:</div>
+        <div style="font-weight:800;font-size:18px;color:#FFD600">৳${customerCashback} → ${bkash}</div>
+      </div>
+    </div>
+    <button class="mb bl" onclick="closeModal();showMDash()">ঠিক আছে</button>`);
 }
 
 function mLogout(){localStorage.removeItem('m_code');localStorage.removeItem('m_pass');mShop=null;document.getElementById('merchant-content').innerHTML=`<div class="card"><h2 style="font-family:'Baloo 2',cursive;font-size:20px;margin-bottom:14px">দোকান লগইন</h2><label class="lbl">দোকানের কোড</label><input class="inp" id="m-code" placeholder="যেমন: BREW001" style="text-transform:uppercase"><label class="lbl">পাসওয়ার্ড</label><input class="inp" type="password" id="m-pass" placeholder="••••••"><button class="btn-s" onclick="merchantLogin()">লগইন করুন</button></div>`;}
@@ -762,13 +808,20 @@ async function loadAdmin(){
     <div class="tx-c">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-weight:700;font-size:14px">${t.shopName}</span>
-        <span style="color:var(--gr);font-weight:800;font-size:16px">৳${t.amount}</span>
+        <span style="color:var(--gr);font-weight:800;font-size:16px">৳${t.amount||0}</span>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <span style="font-family:monospace;font-size:11px;color:var(--gy);background:var(--bg);padding:3px 8px;border-radius:6px">${t.code}</span>
-        <span style="color:var(--bl);font-size:12px;font-weight:600">কমিশন: ৳${t.commission}</span>
+        <span style="color:var(--bl);font-size:12px;font-weight:600">কমিশন: ৳${t.commission||0}</span>
       </div>
-      <div style="font-size:11px;color:var(--gy);margin-top:5px">${t.prize} | ${t.date}</div>
+      ${t.customerBkash?`
+      <div style="background:#EFF6FF;border-radius:8px;padding:8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--bl)">📱 Cashback: ${t.customerBkash}</span>
+        <span style="font-weight:700;color:var(--or);font-size:13px">৳${t.customerCashback||0}</span>
+      </div>
+      <button onclick="sendCashback('${t.customerBkash}',${t.customerCashback||0},'${t.code}')" style="background:var(--gr);color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;width:100%;margin-bottom:4px;font-family:'Hind Siliguri',sans-serif">📱 bKash Cashback পাঠান</button>
+      `:''}
+      <div style="font-size:11px;color:var(--gy)">${t.prize||''} | ${t.date||''}</div>
     </div>`).join('');
 }
 
@@ -863,6 +916,34 @@ async function submitAd(){
 }
 
 // MODAL
+function sendCashback(bkash, amount, code) {
+  const msg = `💰 PaniRewards Cashback\n\nকোড: ${code}\nআপনি পেয়েছেন: ৳${amount} Cashback!\n\nধন্যবাদ PaniRewards ব্যবহার করার জন্য। 🌊`;
+  // Open bKash send money (user needs to manually send)
+  showModal(`
+    <h2>📱 bKash Cashback</h2>
+    <div style="background:#E8F5E9;border-radius:12px;padding:16px;margin:12px 0;text-align:left">
+      <div style="font-size:13px;color:var(--gy);margin-bottom:6px">কাস্টমারের bKash নম্বর:</div>
+      <div style="font-size:22px;font-weight:800;color:#E2136E;margin-bottom:8px">${bkash}</div>
+      <div style="font-size:13px;color:var(--gy);margin-bottom:4px">পাঠাতে হবে:</div>
+      <div style="font-size:28px;font-weight:800;color:var(--gr)">৳${amount}</div>
+    </div>
+    <p style="font-size:12px;color:var(--gy);margin-bottom:12px">আপনার bKash app খুলুন → Send Money → এই নম্বরে পাঠান</p>
+    <button class="mb gr" onclick="closeModal();notifyCashback('${bkash}',${amount},'${code}')">✅ পাঠিয়েছি</button>
+    <button class="mb gy" onclick="closeModal()">পরে করব</button>`);
+}
+
+function notifyCashback(bkash, amount, code) {
+  // Update transaction status
+  const txs = JSON.parse(localStorage.getItem('pr_txs')||'[]');
+  const idx = txs.findIndex(t=>t.code===code);
+  if(idx>-1) { txs[idx].status='cashback_sent'; txs[idx].cashbackSentAt=new Date().toLocaleDateString('bn-BD'); localStorage.setItem('pr_txs',JSON.stringify(txs)); }
+  // Notify customer via WhatsApp
+  const msg=`🎉 PaniRewards Cashback!\n\nআপনার ${code} কুপনের Cashback পাঠানো হয়েছে।\n💰 পরিমাণ: ৳${amount}\n📱 আপনার bKash: ${bkash}\n\nধন্যবাদ Pani ব্যবহার করার জন্য! 🌊`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+  loadAdmin();
+  showModal('<h2>✅ সম্পন্ন!</h2><p>Cashback পাঠানো হয়েছে।</p><button class="mb bl" onclick="closeModal()">ঠিক আছে</button>');
+}
+
 function showModal(html){document.getElementById('modal-body').innerHTML=html;document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 
