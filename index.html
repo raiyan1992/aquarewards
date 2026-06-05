@@ -70,6 +70,13 @@ nav{background:var(--wh);display:flex;align-items:center;justify-content:space-b
 .pkg-c{background:var(--wh);border:2px solid #E5E7EB;border-radius:14px;padding:14px;cursor:pointer;margin-bottom:10px;transition:.2s}
 .pkg-c.sel{border-color:var(--bl);background:#EFF6FF}
 .tx-c{background:var(--wh);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+
+@media print {
+  nav, .bnav, .back, button:not(#print-ignore) { display: none !important; }
+  .page { display: block !important; padding: 0; }
+  body { background: white; }
+  #print-area { max-width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -389,7 +396,11 @@ nav{background:var(--wh);display:flex;align-items:center;justify-content:space-b
   <div class="sec">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="sec-hd" style="margin:0">⚙️ Admin Panel</div>
-      <button class="nbtn" onclick="adminLogout()" style="background:#FEE2E2;color:#C62828">🚪 লগআউট</button>
+      <div style="display:flex;gap:6px">
+        <button class="nbtn" onclick="openReport()" style="background:#FFF3E0;color:#E65100">📊 রিপোর্ট</button>
+        <button class="nbtn" onclick="openPrizeManager()" style="background:#EDE7F6;color:#7B1FA2">🎡 অফার</button>
+        <button class="nbtn" onclick="adminLogout()" style="background:#FEE2E2;color:#C62828">🚪 লগআউট</button>
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
       <div class="card" style="text-align:center"><div class="stat-n" id="adm-tx">0</div><div class="stat-l">মোট লেনদেন</div></div>
@@ -399,6 +410,73 @@ nav{background:var(--wh);display:flex;align-items:center;justify-content:space-b
     </div>
     <div style="font-weight:700;font-size:15px;margin-bottom:10px">সাম্প্রতিক লেনদেন</div>
     <div id="adm-list"></div>
+  </div>
+</div>
+
+<!-- REPORT PAGE -->
+<div id="page-report" class="page">
+  <div class="sec">
+    <button class="back" onclick="showPage('admin')">← পেছনে</button>
+    <div class="sec-hd">📊 দোকান রিপোর্ট</div>
+    
+    <!-- Filter -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:10px">🔍 দোকান খুঁজুন</div>
+      <input class="inp" id="rpt-search" placeholder="দোকানের নাম বা ID লিখুন..." oninput="filterReport()">
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button onclick="setRptFilter('all')" id="rf-all" class="btn-p" style="padding:7px 14px;font-size:12px">সব</button>
+        <button onclick="setRptFilter('food')" id="rf-food" class="nbtn">খাবার</button>
+        <button onclick="setRptFilter('health')" id="rf-health" class="nbtn">স্বাস্থ্য</button>
+        <button onclick="setRptFilter('education')" id="rf-education" class="nbtn">শিক্ষা</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div id="rpt-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+
+    <!-- Shop List -->
+    <div id="rpt-list"></div>
+  </div>
+</div>
+
+<!-- INVOICE PAGE -->
+<div id="page-invoice" class="page">
+  <div class="sec" id="invoice-content"></div>
+</div>
+
+<!-- PRIZE MANAGEMENT PAGE -->
+<div id="page-prizes" class="page">
+  <div class="sec">
+    <button class="back" onclick="showPage('admin')">← পেছনে</button>
+    <div class="sec-hd">🎡 অফার ম্যানেজমেন্ট</div>
+    
+    <!-- Shop Selector -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:10px">দোকান বাছুন</div>
+      <select class="inp" id="prize-shop-select" onchange="loadShopPrizes()">
+        <option value="">-- দোকান বাছুন --</option>
+      </select>
+    </div>
+
+    <!-- Current Prizes -->
+    <div id="prizes-list"></div>
+
+    <!-- Add New Prize -->
+    <div id="add-prize-form" style="display:none">
+      <div class="card" style="margin-bottom:14px;border:2px solid var(--bl)">
+        <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:var(--bl)">➕ নতুন অফার যোগ করুন</div>
+        <label class="lbl">অফারের নাম</label>
+        <input class="inp" id="np-label" placeholder="যেমন: 20% ছাড়, ফ্রি কফি">
+        <label class="lbl">বিবরণ</label>
+        <input class="inp" id="np-desc" placeholder="যেমন: যেকোনো খাবারে ২০% ছাড়">
+        <label class="lbl">কমিশন % (আপনার)</label>
+        <input class="inp" type="number" id="np-comm" placeholder="যেমন: 10" min="0" max="50">
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-p" onclick="addNewPrize()" style="flex:1;justify-content:center">✅ যোগ করুন</button>
+          <button class="mb gy" onclick="document.getElementById('add-prize-form').style.display='none'" style="flex:1">বাতিল</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -421,37 +499,37 @@ nav{background:var(--wh);display:flex;align-items:center;justify-content:space-b
 const SHOPS = {
   food:[
     {id:'BREW001',name:'Brew Café',icon:'☕',bg:'#FFF3E0',sub:'কফি ও স্ন্যাকস',pass:'brew123',
-     prizes:[{l:'20% ছাড়',d:'যেকোনো খাবারে ২০% ছাড়',c:10},{l:'15% ছাড়',d:'পানীয়তে ১৫% ছাড়',c:8},{l:'ফ্রি কফি',d:'যেকোনো অর্ডারে ১টি ফ্রি কফি',c:5},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য! আবার স্ক্যান করুন',c:0},{l:'25% ছাড়',d:'পারিবারিক সেটে ২৫% ছাড়',c:12},{l:'10% ছাড়',d:'টেকওয়েতে ১০% ছাড়',c:5}]},
+     prizes:[{l:'20% ছাড়',d:'যেকোনো খাবারে ২০% ছাড়',c:10,w:15},{l:'15% ছাড়',d:'পানীয়তে ১৫% ছাড়',c:8,w:20},{l:'ফ্রি কফি',d:'যেকোনো অর্ডারে ১টি ফ্রি কফি',c:5,w:5},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য! আবার স্ক্যান করুন',c:0,w:40},{l:'25% ছাড়',d:'পারিবারিক সেটে ২৫% ছাড়',c:12,w:5},{l:'10% ছাড়',d:'টেকওয়েতে ১০% ছাড়',c:5,w:15}]},
     {id:'PIZZA001',name:'Pizza Corner',icon:'🍕',bg:'#FCE4EC',sub:'পিৎজা ও ফাস্টফুড',pass:'pizza123',
-     prizes:[{l:'25% ছাড়',d:'ফ্যামিলি সেটে ২৫% ছাড়',c:12},{l:'ফ্রি ড্রিংক',d:'যেকোনো পিৎজায় ফ্রি ড্রিংক',c:6},{l:'15% ছাড়',d:'সিঙ্গেল পিৎজায় ১৫% ছাড়',c:8},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'30% ছাড়',d:'বিশেষ অফার ৩০% ছাড়',c:15},{l:'10% ছাড়',d:'ডেলিভারিতে ১০% ছাড়',c:5}]},
+     prizes:[{l:'25% ছাড়',d:'ফ্যামিলি সেটে ২৫% ছাড়',c:12,w:10},{l:'ফ্রি ড্রিংক',d:'যেকোনো পিৎজায় ফ্রি ড্রিংক',c:6,w:15},{l:'15% ছাড়',d:'সিঙ্গেল পিৎজায় ১৫% ছাড়',c:8,w:15},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'30% ছাড়',d:'বিশেষ অফার ৩০% ছাড়',c:15,w:8},{l:'10% ছাড়',d:'ডেলিভারিতে ১০% ছাড়',c:5,w:20}]},
     {id:'RICE001',name:'ভাত ঘর',icon:'🍚',bg:'#DCFCE7',sub:'দেশীয় খাবার',pass:'rice123',
-     prizes:[{l:'২০ টাকা ছাড়',d:'যেকোনো থালায় ২০ টাকা ছাড়',c:8},{l:'ফ্রি ডেজার্ট',d:'থালার সাথে ফ্রি মিষ্টি',c:5},{l:'15% ছাড়',d:'দুপুরে ১৫% ছাড়',c:7},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'৫০ টাকা ছাড়',d:'২০০ টাকার উপরে ৫০ ছাড়',c:10},{l:'10% ছাড়',d:'রাতে ১০% ছাড়',c:5}]}
+     prizes:[{l:'২০ টাকা ছাড়',d:'যেকোনো থালায় ২০ টাকা ছাড়',c:8,w:15},{l:'ফ্রি ডেজার্ট',d:'থালার সাথে ফ্রি মিষ্টি',c:5,w:20},{l:'15% ছাড়',d:'দুপুরে ১৫% ছাড়',c:7,w:5},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'৫০ টাকা ছাড়',d:'২০০ টাকার উপরে ৫০ ছাড়',c:10,w:10},{l:'10% ছাড়',d:'রাতে ১০% ছাড়',c:5,w:20}]}
   ],
   health:[
     {id:'MEDI001',name:'MediCare Pharmacy',icon:'💊',bg:'#DCFCE7',sub:'ওষুধের দোকান',pass:'medi123',
-     prizes:[{l:'৳৫০ ছাড়',d:'৳৫০০+ কেনায় ৳৫০ ছাড়',c:8},{l:'10% ছাড়',d:'সব ওষুধে ১০% ছাড়',c:10},{l:'ফ্রি ভিটামিন',d:'কেনার সাথে ফ্রি মাল্টিভিটামিন',c:5},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'15% ছাড়',d:'প্রেসক্রিপশনে ১৫% ছাড়',c:12},{l:'৳৩০ ছাড়',d:'৳৩০০+ কেনায় ৳৩০ ছাড়',c:6}]},
+     prizes:[{l:'৳৫০ ছাড়',d:'৳৫০০+ কেনায় ৳৫০ ছাড়',c:8,w:15},{l:'10% ছাড়',d:'সব ওষুধে ১০% ছাড়',c:10,w:10},{l:'ফ্রি ভিটামিন',d:'কেনার সাথে ফ্রি মাল্টিভিটামিন',c:5,w:20},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'15% ছাড়',d:'প্রেসক্রিপশনে ১৫% ছাড়',c:12,w:10},{l:'৳৩০ ছাড়',d:'৳৩০০+ কেনায় ৳৩০ ছাড়',c:6,w:15}]},
     {id:'LIFE001',name:'LifeCare Diagnostic',icon:'🏥',bg:'#E0F2F1',sub:'ডায়াগনস্টিক সেন্টার',pass:'life123',
-     prizes:[{l:'20% ছাড়',d:'সব টেস্টে ২০% ছাড়',c:15},{l:'15% ছাড়',d:'রক্ত পরীক্ষায় ১৫% ছাড়',c:12},{l:'10% ছাড়',d:'আলট্রাসনোগ্রামে ১০% ছাড়',c:8},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'25% ছাড়',d:'প্যাকেজ টেস্টে ২৫% ছাড়',c:18},{l:'ফ্রি কনসালটেশন',d:'ডাক্তার পরামর্শ ফ্রি',c:0}]},
+     prizes:[{l:'20% ছাড়',d:'সব টেস্টে ২০% ছাড়',c:15,w:8},{l:'15% ছাড়',d:'রক্ত পরীক্ষায় ১৫% ছাড়',c:12,w:10},{l:'10% ছাড়',d:'আলট্রাসনোগ্রামে ১০% ছাড়',c:8,w:15},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'25% ছাড়',d:'প্যাকেজ টেস্টে ২৫% ছাড়',c:18,w:8},{l:'ফ্রি কনসালটেশন',d:'ডাক্তার পরামর্শ ফ্রি',c:0,w:40}]},
     {id:'DENT001',name:'SmileCare Dental',icon:'🦷',bg:'#DBEAFE',sub:'ডেন্টাল ক্লিনিক',pass:'dent123',
-     prizes:[{l:'15% ছাড়',d:'চেকআপে ১৫% ছাড়',c:12},{l:'20% ছাড়',d:'ক্লিনিংয়ে ২০% ছাড়',c:15},{l:'10% ছাড়',d:'ফিলিংয়ে ১০% ছাড়',c:8},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'ফ্রি চেকআপ',d:'প্রথমবার ফ্রি চেকআপ',c:0},{l:'25% ছাড়',d:'রুট ক্যানেলে ২৫% ছাড়',c:18}]}
+     prizes:[{l:'15% ছাড়',d:'চেকআপে ১৫% ছাড়',c:12,w:10},{l:'20% ছাড়',d:'ক্লিনিংয়ে ২০% ছাড়',c:15,w:8},{l:'10% ছাড়',d:'ফিলিংয়ে ১০% ছাড়',c:8,w:15},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'ফ্রি চেকআপ',d:'প্রথমবার ফ্রি চেকআপ',c:0,w:40},{l:'25% ছাড়',d:'রুট ক্যানেলে ২৫% ছাড়',c:18,w:8}]}
   ],
   education:[
     {id:'SKILL001',name:'SkillUp Coaching',icon:'📚',bg:'#EDE7F6',sub:'ইংরেজি ও আইএলটিএস',pass:'skill123',
-     prizes:[{l:'15% ছাড়',d:'যেকোনো কোর্সে ১৫% ছাড়',c:12},{l:'20% ছাড়',d:'আইএলটিএসে ২০% ছাড়',c:15},{l:'ফ্রি ট্রায়াল',d:'৭ দিন ফ্রি ক্লাস',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'25% ছাড়',d:'ব্যাচ ভর্তিতে ২৫% ছাড়',c:18},{l:'৳১০০০ ছাড়',d:'ভর্তিতে ৳১০০০ ছাড়',c:10}]},
+     prizes:[{l:'15% ছাড়',d:'যেকোনো কোর্সে ১৫% ছাড়',c:12,w:10},{l:'20% ছাড়',d:'আইএলটিএসে ২০% ছাড়',c:15,w:8},{l:'ফ্রি ট্রায়াল',d:'৭ দিন ফ্রি ক্লাস',c:0,w:40},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'25% ছাড়',d:'ব্যাচ ভর্তিতে ২৫% ছাড়',c:18,w:8},{l:'৳১০০০ ছাড়',d:'ভর্তিতে ৳১০০০ ছাড়',c:10,w:10}]},
     {id:'MATH001',name:'MathCare Academy',icon:'🧮',bg:'#FCE4EC',sub:'গণিত ও বিজ্ঞান',pass:'math123',
-     prizes:[{l:'20% ছাড়',d:'ভর্তিতে ২০% ছাড়',c:15},{l:'15% ছাড়',d:'মাসিক ফিতে ১৫% ছাড়',c:12},{l:'ফ্রি বই',d:'ভর্তিতে ফ্রি নোটবুক',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'৳৫০০ ছাড়',d:'ভর্তিতে ৳৫০০ ছাড়',c:8},{l:'25% ছাড়',d:'বার্ষিক প্যাকেজে ২৫% ছাড়',c:18}]}
+     prizes:[{l:'20% ছাড়',d:'ভর্তিতে ২০% ছাড়',c:15,w:8},{l:'15% ছাড়',d:'মাসিক ফিতে ১৫% ছাড়',c:12,w:10},{l:'ফ্রি বই',d:'ভর্তিতে ফ্রি নোটবুক',c:0,w:40},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'৳৫০০ ছাড়',d:'ভর্তিতে ৳৫০০ ছাড়',c:8,w:15},{l:'25% ছাড়',d:'বার্ষিক প্যাকেজে ২৫% ছাড়',c:18,w:8}]}
   ],
   religious:[
     {id:'HAJ001',name:'Al-Huda Travel',icon:'🕌',bg:'#DCFCE7',sub:'হজ্জ ও উমরাহ',pass:'haj123',
-     prizes:[{l:'৳৫০০০ ছাড়',d:'উমরাহ প্যাকেজে ৳৫০০০ ছাড়',c:20},{l:'ফ্রি ভিসা',d:'প্যাকেজে ফ্রি ভিসা প্রসেসিং',c:15},{l:'10% ছাড়',d:'গ্রুপ ট্যুরে ১০% ছাড়',c:10},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'15% ছাড়',d:'আর্লি বুকিংয়ে ১৫% ছাড়',c:12},{l:'ফ্রি হোটেল',d:'১ রাত ফ্রি',c:8}]}
+     prizes:[{l:'৳৫০০০ ছাড়',d:'উমরাহ প্যাকেজে ৳৫০০০ ছাড়',c:20,w:5},{l:'ফ্রি ভিসা',d:'প্যাকেজে ফ্রি ভিসা প্রসেসিং',c:15,w:8},{l:'10% ছাড়',d:'গ্রুপ ট্যুরে ১০% ছাড়',c:10,w:10},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'15% ছাড়',d:'আর্লি বুকিংয়ে ১৫% ছাড়',c:12,w:10},{l:'ফ্রি হোটেল',d:'১ রাত ফ্রি',c:8,w:15}]}
   ],
   lifestyle:[
     {id:'FURN001',name:'HomeStyle Furniture',icon:'🛋️',bg:'#FFF3E0',sub:'আসবাবপত্র',pass:'furn123',
-     prizes:[{l:'15% ছাড়',d:'যেকোনো আসবাবে ১৫% ছাড়',c:12},{l:'20% ছাড়',d:'বেডরুম সেটে ২০% ছাড়',c:15},{l:'ফ্রি ডেলিভারি',d:'৳৫০০০+ অর্ডারে ফ্রি ডেলিভারি',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'10% ছাড়',d:'ইলেক্ট্রনিকসে ১০% ছাড়',c:8},{l:'25% ছাড়',d:'ক্লিয়ারেন্স সেলে ২৫% ছাড়',c:18}]}
+     prizes:[{l:'15% ছাড়',d:'যেকোনো আসবাবে ১৫% ছাড়',c:12,w:10},{l:'20% ছাড়',d:'বেডরুম সেটে ২০% ছাড়',c:15,w:8},{l:'ফ্রি ডেলিভারি',d:'৳৫০০০+ অর্ডারে ফ্রি ডেলিভারি',c:0,w:40},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'10% ছাড়',d:'ইলেক্ট্রনিকসে ১০% ছাড়',c:8,w:15},{l:'25% ছাড়',d:'ক্লিয়ারেন্স সেলে ২৫% ছাড়',c:18,w:8}]}
   ],
   auto:[
     {id:'BIKE001',name:'Bike Zone Service',icon:'🏍️',bg:'#FCE4EC',sub:'বাইক সার্ভিসিং',pass:'bike123',
-     prizes:[{l:'15% ছাড়',d:'ফুল সার্ভিসে ১৫% ছাড়',c:12},{l:'৳২০০ ছাড়',d:'ইঞ্জিন ওয়েল চেঞ্জে ৳২০০ ছাড়',c:8},{l:'ফ্রি ওয়াশ',d:'সার্ভিসের সাথে ফ্রি ওয়াশ',c:0},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0},{l:'20% ছাড়',d:'টায়ার চেঞ্জে ২০% ছাড়',c:15},{l:'10% ছাড়',d:'যন্ত্রাংশে ১০% ছাড়',c:8}]}
+     prizes:[{l:'15% ছাড়',d:'ফুল সার্ভিসে ১৫% ছাড়',c:12,w:10},{l:'৳২০০ ছাড়',d:'ইঞ্জিন ওয়েল চেঞ্জে ৳২০০ ছাড়',c:8,w:15},{l:'ফ্রি ওয়াশ',d:'সার্ভিসের সাথে ফ্রি ওয়াশ',c:0,w:40},{l:'আবার চেষ্টা',d:'দুর্ভাগ্য!',c:0,w:40},{l:'20% ছাড়',d:'টায়ার চেঞ্জে ২০% ছাড়',c:15,w:8},{l:'10% ছাড়',d:'যন্ত্রাংশে ১০% ছাড়',c:8,w:15}]}
   ]
 };
 const CAT_NAMES={food:'খাবার',health:'স্বাস্থ্য',education:'শিক্ষা',religious:'ধর্মীয়',lifestyle:'লাইফস্টাইল',auto:'অটো'};
@@ -562,11 +640,19 @@ function doSpin(){
       spinning=false;
       document.getElementById('spin-btn').disabled=false;
       const prizes=curShop.prizes;
+      // Weighted random selection
+      const totalW = prizes.reduce((a,p)=>a+(p.w||10),0);
+      let rand = Math.random() * totalW;
+      let winIdx = 0;
+      for(let i=0;i<prizes.length;i++){
+        rand -= (prizes[i].w||10);
+        if(rand<=0){ winIdx=i; break; }
+      }
+      wonPrize=prizes[winIdx];
+      // Animate wheel to land on winning prize
       const slice=(2*Math.PI)/prizes.length;
+      const targetAngle = winIdx * slice + slice/2;
       const norm=((curAngle%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
-      const ptr=(2*Math.PI-norm+Math.PI*1.5)%(2*Math.PI);
-      const idx=Math.floor(ptr/slice)%prizes.length;
-      wonPrize=prizes[idx];
       showPrize(wonPrize);
     }
   }
@@ -575,14 +661,18 @@ function doSpin(){
 
 function showPrize(prize){
   document.getElementById('prize-txt').textContent=prize.l;
-  document.getElementById('prize-desc').textContent=prize.d;
-  if(prize.c>0){
+  // Show split info if available
+  const splitInfo = prize.cust !== undefined ? 
+    `আপনি পাবেন ${prize.cust}% Cashback (bKash-এ)` : prize.d;
+  document.getElementById('prize-desc').textContent=splitInfo;
+  if(prize.c>0||prize.cust>0){
     const code=genCode();
-    curCoupon={code,shop:curShop.id,shopName:curShop.name,cat:curCat,prize:prize.l,desc:prize.d,comm:prize.c,date:new Date().toLocaleDateString('bn-BD'),used:false};
+    curCoupon={code,shop:curShop.id,shopName:curShop.name,cat:curCat,prize:prize.l,desc:prize.d,comm:prize.c,total:prize.total||prize.c,cust:prize.cust!==undefined?prize.cust:prize.c,date:new Date().toLocaleDateString('bn-BD'),used:false};
     saveCoupon(curCoupon);
     localStorage.setItem(`spun_${curShop.id}_${curCat}`,'1');
     document.getElementById('coupon-code-txt').textContent=code;
-    document.getElementById('coupon-info-txt').textContent=`${curShop.name} | ${CAT_NAMES[curCat]}`;
+    const custPct = prize.cust !== undefined ? prize.cust : prize.c;
+    document.getElementById('coupon-info-txt').textContent=`${curShop.name} | ${CAT_NAMES[curCat]} | আপনি পাবেন ${custPct}% Cashback`;
     document.getElementById('coupon-box').style.display='block';
   } else {
     document.getElementById('coupon-box').style.display='none';
@@ -942,6 +1032,456 @@ function notifyCashback(bkash, amount, code) {
   window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
   loadAdmin();
   showModal('<h2>✅ সম্পন্ন!</h2><p>Cashback পাঠানো হয়েছে।</p><button class="mb bl" onclick="closeModal()">ঠিক আছে</button>');
+}
+
+// ===== REPORT SYSTEM =====
+let currentFilter = 'all';
+
+function openReport() {
+  if(localStorage.getItem('adm_logged')!=='1') { adminLogin(); return; }
+  showPage('report');
+  loadReport();
+}
+
+function setRptFilter(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('[id^="rf-"]').forEach(b => {
+    b.className = 'nbtn';
+  });
+  document.getElementById('rf-'+cat).className = 'btn-p';
+  document.getElementById('rf-'+cat).style.cssText = 'padding:7px 14px;font-size:12px';
+  loadReport();
+}
+
+function filterReport() {
+  loadReport();
+}
+
+async function loadReport() {
+  let txs = [];
+  try {
+    if(db && window._fb) {
+      const{collection,getDocs,query,orderBy}=window._fb;
+      const q=query(collection(db,'transactions'),orderBy('createdAt','desc'));
+      const snap=await getDocs(q);
+      txs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }
+  } catch(e) {}
+  if(!txs.length) txs = JSON.parse(localStorage.getItem('pr_txs')||'[]');
+
+  const search = document.getElementById('rpt-search')?.value.toLowerCase() || '';
+
+  // Group by shop
+  const shopMap = {};
+  txs.forEach(t => {
+    if(search && !t.shopName?.toLowerCase().includes(search) && !t.shopId?.toLowerCase().includes(search)) return;
+    if(currentFilter !== 'all') {
+      // Check if shop belongs to category
+      const catShops = SHOPS[currentFilter] || [];
+      if(!catShops.find(s=>s.id===t.shopId)) return;
+    }
+    if(!shopMap[t.shopId]) {
+      shopMap[t.shopId] = {
+        shopId: t.shopId,
+        shopName: t.shopName,
+        txs: [],
+        totalSale: 0,
+        totalCashback: 0,
+        myCommission: 0,
+        customerCashback: 0
+      };
+    }
+    shopMap[t.shopId].txs.push(t);
+    shopMap[t.shopId].totalSale += (t.amount||0);
+    shopMap[t.shopId].totalCashback += (t.totalCashback||t.commission||0);
+    shopMap[t.shopId].myCommission += (t.commission||0);
+    shopMap[t.shopId].customerCashback += (t.customerCashback||0);
+  });
+
+  const shops = Object.values(shopMap);
+  const grandSale = shops.reduce((a,b)=>a+b.totalSale,0);
+  const grandComm = shops.reduce((a,b)=>a+b.myCommission,0);
+  const grandCashback = shops.reduce((a,b)=>a+b.customerCashback,0);
+  const grandTotal = grandComm + grandCashback;
+
+  // Summary
+  document.getElementById('rpt-summary').innerHTML = `
+    <div class="card" style="text-align:center"><div class="stat-n">৳${grandSale}</div><div class="stat-l">মোট বিক্রয়</div></div>
+    <div class="card" style="text-align:center"><div class="stat-n" style="color:var(--or)">৳${grandTotal}</div><div class="stat-l">মোট পাওনা</div></div>
+    <div class="card" style="text-align:center"><div class="stat-n">৳${grandComm}</div><div class="stat-l">আপনার কমিশন</div></div>
+    <div class="card" style="text-align:center"><div class="stat-n">৳${grandCashback}</div><div class="stat-l">কাস্টমার Cashback</div></div>`;
+
+  if(!shops.length) {
+    document.getElementById('rpt-list').innerHTML = '<p style="color:var(--gy);text-align:center;padding:30px">কোনো লেনদেন নেই</p>';
+    return;
+  }
+
+  document.getElementById('rpt-list').innerHTML = shops.map(s => {
+    const dueTotal = s.myCommission + s.customerCashback;
+    return `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div>
+          <div style="font-weight:800;font-size:16px">${s.shopName}</div>
+          <div style="font-size:11px;color:var(--gy);font-family:monospace">${s.shopId}</div>
+        </div>
+        <span class="tag or" style="background:#FEF3C7;color:#92400E">${s.txs.length}টি লেনদেন</span>
+      </div>
+      <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #E5E7EB">
+          <span style="font-size:13px;color:var(--gy)">মোট বিক্রয়:</span>
+          <span style="font-weight:700">৳${s.totalSale}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;color:var(--gy)">আপনার কমিশন:</span>
+          <span style="font-weight:700;color:var(--bl)">৳${s.myCommission}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #E5E7EB">
+          <span style="font-size:13px;color:var(--gy)">কাস্টমার Cashback:</span>
+          <span style="font-weight:700;color:var(--gr)">৳${s.customerCashback}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;background:#FEF3C7;padding:8px;border-radius:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#92400E">দোকান আপনাকে দেবে (১০%):</div>
+            <div style="font-size:10px;color:#92400E">Cashback আলাদাভাবে দেওয়া হয়েছে</div>
+          </div>
+          <span style="font-weight:800;font-size:20px;color:#E65100">৳${Math.round(s.totalSale*0.1)}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="printInvoice('${s.shopId}')" class="btn-p" style="flex:1;justify-content:center;padding:10px;font-size:13px">🖨️ Invoice প্রিন্ট</button>
+        <button onclick="waInvoice('${s.shopId}')" class="btn-p" style="background:var(--gr);flex:1;justify-content:center;padding:10px;font-size:13px">📱 WhatsApp</button>
+      </div>
+    </div>`}).join('');
+}
+
+async function getShopTxs(shopId) {
+  let txs = [];
+  try {
+    if(db && window._fb) {
+      const{collection,getDocs,query,orderBy}=window._fb;
+      const snap=await getDocs(collection(db,'transactions'));
+      txs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t.shopId===shopId);
+    }
+  } catch(e) {}
+  if(!txs.length) txs = JSON.parse(localStorage.getItem('pr_txs')||'[]').filter(t=>t.shopId===shopId);
+  return txs;
+}
+
+async function printInvoice(shopId) {
+  const txs = await getShopTxs(shopId);
+  if(!txs.length) return;
+  const shop = txs[0];
+  const totalSale = txs.reduce((a,b)=>a+(b.amount||0),0);
+  const myComm = txs.reduce((a,b)=>a+(b.commission||0),0);
+  const custCash = txs.reduce((a,b)=>a+(b.customerCashback||0),0);
+  const dueTotal = myComm + custCash;
+  const today = new Date().toLocaleDateString('bn-BD');
+  const invoiceNo = 'INV-'+shopId+'-'+Date.now().toString().slice(-6);
+
+  const invoiceHTML = `
+    <div id="print-area" style="font-family:'Hind Siliguri',sans-serif;max-width:400px;margin:0 auto;padding:20px">
+      <!-- Header -->
+      <div style="text-align:center;border-bottom:2px solid #0277BD;padding-bottom:14px;margin-bottom:14px">
+        <div style="font-size:28px;margin-bottom:4px">🌊</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:900;color:#0277BD">PaniRewards</div>
+        <div style="font-size:11px;color:#6B7280;letter-spacing:2px">SCAN • SPIN • SAVE</div>
+        <div style="font-size:12px;color:#444;margin-top:6px">📱 01747090375 | panirewards</div>
+      </div>
+
+      <!-- Invoice Info -->
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px">
+        <div>
+          <div style="color:#6B7280">Invoice নং:</div>
+          <div style="font-weight:700;font-family:monospace">${invoiceNo}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="color:#6B7280">তারিখ:</div>
+          <div style="font-weight:700">${today}</div>
+        </div>
+      </div>
+
+      <!-- Shop Info -->
+      <div style="background:#EFF6FF;border-radius:10px;padding:12px;margin-bottom:14px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:4px">দোকান:</div>
+        <div style="font-weight:800;font-size:16px;color:#0277BD">${shop.shopName}</div>
+        <div style="font-size:11px;color:#6B7280;font-family:monospace">ID: ${shopId}</div>
+      </div>
+
+      <!-- Transaction Table -->
+      <div style="margin-bottom:14px">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:#444">লেনদেনের বিবরণ:</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:#0277BD;color:white">
+              <th style="padding:8px;text-align:left;border-radius:6px 0 0 0">কোড</th>
+              <th style="padding:8px;text-align:center">অফার</th>
+              <th style="padding:8px;text-align:right">বিক্রয়</th>
+              <th style="padding:8px;text-align:right;border-radius:0 6px 0 0">পাওনা</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${txs.map((t,i)=>`
+            <tr style="background:${i%2===0?'#F8FAFF':'white'}">
+              <td style="padding:7px 8px;font-family:monospace;font-size:11px">${t.code}</td>
+              <td style="padding:7px 8px;text-align:center;font-size:11px">${t.prize||''}</td>
+              <td style="padding:7px 8px;text-align:right;font-weight:600">৳${t.amount||0}</td>
+              <td style="padding:7px 8px;text-align:right;font-weight:700;color:#E65100">৳${Math.round((t.amount||0)*0.1)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary -->
+      <div style="border:2px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E5E7EB">
+          <span style="font-size:13px;color:#6B7280">মোট বিক্রয়:</span>
+          <span style="font-weight:700">৳${totalSale}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:13px;color:#6B7280">কমিশন হার:</span>
+          <span style="font-weight:700;color:#0277BD">১০%</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:2px dashed #E5E7EB">
+          <span style="font-size:13px;color:#6B7280">মোট কমিশন (১০%):</span>
+          <span style="font-weight:700;color:#0277BD">৳${Math.round(totalSale*0.1)}</span>
+        </div>
+        <div style="background:#DCFCE7;border-radius:8px;padding:8px;margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:12px;color:#166534">✅ কাস্টমার Cashback (আগে দেওয়া):</span>
+            <span style="font-weight:700;color:#166534">৳${custCash}</span>
+          </div>
+          <div style="font-size:10px;color:#166534;margin-top:2px">bKash-এ আগেই পরিশোধ করা হয়েছে</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:12px;color:#6B7280">আপনার কমিশন:</span>
+          <span style="font-weight:700;color:#0277BD">৳${myComm}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;background:#FEF3C7;padding:12px;border-radius:10px;margin-top:8px;align-items:center">
+          <div>
+            <div style="font-size:15px;font-weight:800;color:#92400E">দোকান আপনাকে দেবে:</div>
+            <div style="font-size:11px;color:#92400E;margin-top:2px">(পুরো ১০% — Cashback আলাদাভাবে দেওয়া হয়েছে)</div>
+          </div>
+          <span style="font-size:26px;font-weight:900;color:#E65100">৳${Math.round(totalSale*0.1)}</span>
+        </div>
+      </div>
+
+      <!-- Signature -->
+      <div style="display:flex;justify-content:space-between;margin-top:30px;padding-top:14px;border-top:1px dashed #E5E7EB">
+        <div style="text-align:center">
+          <div style="height:40px;border-bottom:1px solid #444;width:120px;margin-bottom:4px"></div>
+          <div style="font-size:11px;color:#6B7280">দোকানদারের স্বাক্ষর</div>
+        </div>
+        <div style="text-align:center">
+          <div style="height:40px;border-bottom:1px solid #444;width:120px;margin-bottom:4px"></div>
+          <div style="font-size:11px;color:#6B7280">PaniRewards প্রতিনিধি</div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:16px;font-size:11px;color:#9CA3AF">
+        ধন্যবাদ PaniRewards এর সাথে থাকার জন্য 🌊
+      </div>
+    </div>`;
+
+  document.getElementById('invoice-content').innerHTML = `
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="back" onclick="showPage('report')">← পেছনে</button>
+      <button class="btn-p" onclick="window.print()" style="flex:1;justify-content:center">🖨️ প্রিন্ট করুন</button>
+    </div>
+    ${invoiceHTML}`;
+  showPage('invoice');
+}
+
+async function waInvoice(shopId) {
+  const txs = await getShopTxs(shopId);
+  if(!txs.length) return;
+  const shop = txs[0];
+  const totalSale = txs.reduce((a,b)=>a+(b.amount||0),0);
+  const myComm = txs.reduce((a,b)=>a+(b.commission||0),0);
+  const custCash = txs.reduce((a,b)=>a+(b.customerCashback||0),0);
+  const dueTotal = myComm + custCash;
+  const today = new Date().toLocaleDateString('bn-BD');
+
+  const totalDue = Math.round(totalSale * 0.1);
+  const msg = `🌊 PaniRewards Invoice\n━━━━━━━━━━━━━━━━━━\n🏪 দোকান: ${shop.shopName}\n📋 ID: ${shopId}\n📅 তারিখ: ${today}\n━━━━━━━━━━━━━━━━━━\n💵 মোট বিক্রয়: ৳${totalSale}\n📊 লেনদেন: ${txs.length}টি\n━━━━━━━━━━━━━━━━━━\n📌 কমিশন হার: ১০%\n💰 মোট কমিশন: ৳${totalDue}\n✅ কাস্টমার Cashback (দেওয়া হয়েছে): ৳${custCash}\n━━━━━━━━━━━━━━━━━━\n⚠️ আপনি PaniRewards-কে দেবেন:\n💴 ৳${totalDue}\n━━━━━━━━━━━━━━━━━━\nঅনুগ্রহ করে দ্রুত পরিশোধ করুন।\nধন্যবাদ 🌊`;
+
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// ===== PRIZE MANAGEMENT =====
+function openPrizeManager() {
+  if(localStorage.getItem('adm_logged')!=='1') { adminLogin(); return; }
+  // Populate shop dropdown
+  const sel = document.getElementById('prize-shop-select');
+  sel.innerHTML = '<option value="">-- দোকান বাছুন --</option>';
+  Object.entries(SHOPS).forEach(([cat, shops]) => {
+    shops.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = cat + '|' + s.id;
+      opt.textContent = s.name + ' (' + CAT_NAMES[cat] + ')';
+      sel.appendChild(opt);
+    });
+  });
+  showPage('prizes');
+  document.getElementById('prizes-list').innerHTML = '';
+  document.getElementById('add-prize-form').style.display = 'none';
+}
+
+function loadShopPrizes() {
+  const val = document.getElementById('prize-shop-select').value;
+  if(!val) { document.getElementById('prizes-list').innerHTML = ''; return; }
+  const [cat, shopId] = val.split('|');
+  const shop = (SHOPS[cat]||[]).find(s=>s.id===shopId);
+  if(!shop) return;
+
+  // Load custom prizes from localStorage first, fallback to default
+  const customKey = 'prizes_' + shopId;
+  const customPrizes = JSON.parse(localStorage.getItem(customKey) || 'null');
+  const prizes = customPrizes || shop.prizes;
+
+  document.getElementById('prizes-list').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-weight:700;font-size:14px">${shop.name} — অফার তালিকা</div>
+      <button class="btn-p" onclick="document.getElementById('add-prize-form').style.display='block'" style="padding:7px 12px;font-size:12px">+ যোগ করুন</button>
+    </div>
+    ${prizes.map((p,i) => { const totalW=prizes.reduce((a,x)=>a+(x.w||10),0); const chance=Math.round(((p.w||10)/totalW)*100); return `
+    <div class="card" style="margin-bottom:8px;display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;background:${p.c>0?'#DCFCE7':'#FEE2E2'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${p.c>0?'🎁':'❌'}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${p.l}</div>
+        <div style="font-size:12px;color:var(--gy)">${p.d}</div>
+        <div style="display:flex;gap:8px;margin-top:3px;align-items:center">
+          <span style="font-size:11px;color:var(--bl)">কমিশন: ${p.c}%</span>
+          <span style="font-size:11px;background:${chance>30?'#FEE2E2':chance>15?'#FEF3C7':'#DCFCE7'};color:${chance>30?'#C62828':chance>15?'#92400E':'#166534'};padding:2px 6px;border-radius:10px;font-weight:700">~${chance}% সম্ভাবনা</span>
+        </div>
+      </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button onclick="editPrize('${cat}','${shopId}',${i})" style="background:#EFF6FF;color:var(--bl);border:none;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">✏️ Edit</button>
+        <button onclick="deletePrize('${cat}','${shopId}',${i})" style="background:#FEE2E2;color:var(--rd);border:none;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">🗑️ মুছুন</button>
+      </div>
+    </div>`).join('')}
+    <button onclick="resetPrizes('${cat}','${shopId}')" class="mb gy" style="width:100%;margin-top:8px;font-size:12px">🔄 Default-এ ফিরে যান</button>`;
+}
+
+function addNewPrize() {
+  const val = document.getElementById('prize-shop-select').value;
+  if(!val) return;
+  const [cat, shopId] = val.split('|');
+  const label = document.getElementById('np-label').value.trim();
+  const desc = document.getElementById('np-desc').value.trim();
+  const comm = parseInt(document.getElementById('np-comm').value)||0;
+  if(!label||!desc) { showModal('<h2>⚠️ তথ্য দিন</h2><p>সব ঘর পূরণ করুন।</p><button class="mb gy" onclick="closeModal()">ঠিক আছে</button>'); return; }
+
+  const shop = (SHOPS[cat]||[]).find(s=>s.id===shopId);
+  const customKey = 'prizes_' + shopId;
+  const prizes = JSON.parse(localStorage.getItem(customKey) || JSON.stringify(shop.prizes));
+  prizes.push({l:label, d:desc, c:comm,w:5});
+  localStorage.setItem(customKey, JSON.stringify(prizes));
+  // Update SHOPS in memory
+  const shopIdx = SHOPS[cat].findIndex(s=>s.id===shopId);
+  if(shopIdx>-1) SHOPS[cat][shopIdx].prizes = prizes;
+
+  document.getElementById('np-label').value='';
+  document.getElementById('np-desc').value='';
+  document.getElementById('np-comm').value='';
+  document.getElementById('add-prize-form').style.display='none';
+  loadShopPrizes();
+  showModal('<h2>✅ যোগ হয়েছে!</h2><p>নতুন অফার যোগ করা হয়েছে।</p><button class="mb bl" onclick="closeModal()">ঠিক আছে</button>');
+}
+
+function editPrize(cat, shopId, idx) {
+  const shop = (SHOPS[cat]||[]).find(s=>s.id===shopId);
+  const customKey = 'prizes_' + shopId;
+  const prizes = JSON.parse(localStorage.getItem(customKey) || JSON.stringify(shop.prizes));
+  const p = prizes[idx];
+  const totalW = prizes.reduce((a,x)=>a+(x.w||10),0);
+  const chance = Math.round(((p.w||10)/totalW)*100);
+  showModal(`
+    <h2>✏️ অফার Edit করুন</h2>
+    <label class="lbl" style="text-align:left;display:block">অফারের নাম</label>
+    <input class="inp" id="ep-label" value="${p.l}" style="margin-bottom:8px">
+    <label class="lbl" style="text-align:left;display:block">বিবরণ</label>
+    <input class="inp" id="ep-desc" value="${p.d}" style="margin-bottom:8px">
+    <label class="lbl" style="text-align:left;display:block">কমিশন %</label>
+    <input class="inp" type="number" id="ep-comm" value="${p.c}" style="margin-bottom:8px">
+    <label class="lbl" style="text-align:left;display:block">⚖️ Weight (বর্তমান সম্ভাবনা: ~${chance}%)</label>
+    <div style="background:#F0F4FF;border-radius:8px;padding:10px;margin-top:6px;margin-bottom:8px;font-size:12px;color:#444">
+      <div style="margin-bottom:4px">বেশি weight = বেশিবার উঠবে</div>
+      <div>১ = খুব কম | ১০ = স্বাভাবিক | ৪০ = বেশি | ৮০ = সবচেয়ে বেশি</div>
+    </div>
+    <input class="inp" type="number" id="ep-weight" value="${p.w||10}" min="1" max="100" style="margin-bottom:12px">
+    <button class="mb bl" onclick="saveEditPrize('${cat}','${shopId}',${idx})">✅ সেভ করুন</button>
+    <button class="mb gy" onclick="closeModal()">বাতিল</button>`);
+}
+
+function updateMyComm() {
+  const total = parseInt(document.getElementById('ep-total')?.value)||0;
+  const cust = parseInt(document.getElementById('ep-cust')?.value)||0;
+  const myC = total - cust;
+  const el = document.getElementById('my-comm-preview');
+  if(el) el.textContent = 'আপনার কমিশন: ' + myC + '%' + (myC<0?' ⚠️ কাস্টমার % বেশি হয়ে গেছে!':'');
+}
+
+function saveEditPrize(cat, shopId, idx) {
+  const shop = (SHOPS[cat]||[]).find(s=>s.id===shopId);
+  const customKey = 'prizes_' + shopId;
+  const prizes = JSON.parse(localStorage.getItem(customKey) || JSON.stringify(shop.prizes));
+  const epTotal = parseInt(document.getElementById('ep-total')?.value)||0;
+  const epCust = parseInt(document.getElementById('ep-cust')?.value)||0;
+  prizes[idx] = {
+    l: document.getElementById('ep-label').value.trim(),
+    d: document.getElementById('ep-desc').value.trim(),
+    total: epTotal,
+    cust: epCust,
+    c: epTotal - epCust,
+    w: parseInt(document.getElementById('ep-weight').value)||10
+  };
+  localStorage.setItem(customKey, JSON.stringify(prizes));
+  const shopIdx = SHOPS[cat].findIndex(s=>s.id===shopId);
+  if(shopIdx>-1) SHOPS[cat][shopIdx].prizes = prizes;
+  closeModal();
+  loadShopPrizes();
+}
+
+function deletePrize(cat, shopId, idx) {
+  showModal(`<h2>⚠️ মুছে ফেলবেন?</h2><p>এই অফারটি মুছে যাবে।</p>
+    <button class="mb rd" onclick="confirmDeletePrize('${cat}','${shopId}',${idx})">🗑️ মুছুন</button>
+    <button class="mb gy" onclick="closeModal()">বাতিল</button>`);
+}
+
+function confirmDeletePrize(cat, shopId, idx) {
+  const shop = (SHOPS[cat]||[]).find(s=>s.id===shopId);
+  const customKey = 'prizes_' + shopId;
+  const prizes = JSON.parse(localStorage.getItem(customKey) || JSON.stringify(shop.prizes));
+  prizes.splice(idx, 1);
+  localStorage.setItem(customKey, JSON.stringify(prizes));
+  const shopIdx = SHOPS[cat].findIndex(s=>s.id===shopId);
+  if(shopIdx>-1) SHOPS[cat][shopIdx].prizes = prizes;
+  closeModal();
+  loadShopPrizes();
+}
+
+function resetPrizes(cat, shopId) {
+  showModal(`<h2>🔄 Reset করবেন?</h2><p>Default অফারে ফিরে যাবে।</p>
+    <button class="mb bl" onclick="confirmReset('${cat}','${shopId}')">✅ হ্যাঁ</button>
+    <button class="mb gy" onclick="closeModal()">না</button>`);
+}
+
+function confirmReset(cat, shopId) {
+  localStorage.removeItem('prizes_' + shopId);
+  closeModal();
+  loadShopPrizes();
+}
+
+// Load custom prizes on init
+function loadCustomPrizes() {
+  Object.entries(SHOPS).forEach(([cat, shops]) => {
+    shops.forEach(s => {
+      const custom = localStorage.getItem('prizes_' + s.id);
+      if(custom) s.prizes = JSON.parse(custom);
+    });
+  });
 }
 
 function showModal(html){document.getElementById('modal-body').innerHTML=html;document.getElementById('modal').classList.add('open');}
